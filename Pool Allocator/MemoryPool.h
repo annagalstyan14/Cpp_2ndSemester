@@ -4,23 +4,31 @@
 
 #include <vector>
 #include <cstddef>
+#include <mutex>
 
 class MemoryPool {
-private: 
-	static const std::size_t BlockSize = 1024;
-	std::vector<void*> blocks;
-	std::size_t currentIndex;
-	std::size_t objectSize;
+private:
+    std::size_t BlockSize;
+    std::vector<void*> blocks;
+    std::size_t currentIndex;
+    std::size_t objectSize;
+    std::vector<void*> freeList;
+    std::mutex mtx;
 
-	void allocateNewBlock();
+    void allocateNewBlock();
+    void* allocateFromFreeList();
 
 public:
-	explicit MemoryPool(std::size_t objSize);
-	~MemoryPool();
+    explicit MemoryPool(std::size_t objSize, std::size_t blockSize = 1024);
+    ~MemoryPool();
 
-	void* allocate();
-	void deallocateAll();
+    void* allocate();
+    void deallocate(void* ptr);s
+    void deallocateAll();
+    std::size_t getAllocatedBlocks() const; 
+    std::size_t getFreeBlocks() const; 
 };
 
-#endif 
+#endif
+
 
