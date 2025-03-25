@@ -36,7 +36,8 @@ int main() {
 
     // The other object (p2) still exists
     std::cout << "After destroying p1: " << p2->name << ", " << p2->age << '\n';
-
+    
+    allocator.destroy_element(p2);
         // Reset allocator (deallocate all remaining objects)
         allocator.reset();
 
