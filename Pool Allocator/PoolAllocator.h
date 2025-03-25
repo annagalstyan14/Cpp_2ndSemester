@@ -30,7 +30,8 @@ T* PoolAllocator<T>::new_element() {
 template <typename T>
 void PoolAllocator<T>::destroy_element(T* ptr) {
     if (ptr) {
-        ptr->~T();  // Explicitly call the destructor
+        ptr->~T(); 
+        pool.deallocate(ptr); // Explicitly call the destructor
     }
 }
 
@@ -39,4 +40,6 @@ template <typename T>
 void PoolAllocator<T>::reset() {
     pool.deallocateAll();
 }
+
+templa
 
