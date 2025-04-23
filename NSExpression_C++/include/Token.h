@@ -3,20 +3,53 @@
 
 #include <string>
 #include <iostream>
-enum class TokenType { NUMBER, OPERATOR, FUNCTION, PARENTHESIS};
+enum class TokenType { 
+    NUMBER, 
+    OPERATOR, 
+    FUNCTION, 
+    PARENTHESIS
+};
 
-enum class OperatorPrecedence {LOW, MEDIUM, HIGH};
+enum class OperatorPrecedence {
+    LOW, 
+    MEDIUM, 
+    HIGH
+};
+
+enum class OperatorType {
+    ADDITION,
+    SUBTRACTION,
+    MULTIPLICATION,
+    DIVISION,
+    EXPONENTIATION
+};
+
+enum class {
+    SIN,
+    COS,
+    TAN,
+    LOG
+};
 
 class Token {
     public:
     TokenType type;
     std::string value;
-
     OperatorPrecedence precedence;
-    Token(TokenType t, std::string v, OperatorPrecedence p = OperatorPrecedence::LOW) : type(t), value(v), precedence(p) {}
+    
+    Token(TokenType t, std::string v) 
+        : type(t), value(v), precedence(OperatorPrecedence::LOW) {}
+
+    Token(TokenType t, std::string v, OperatorPrecedence p)
+        : type(t), value(v), precedence(p) {}
 
     void displayToken() const {
         std::cout << "Token Type: " << static_cast<int>(type) << ", Value: " << value << std::endl;
+    }
+
+    friend std::ostream& operator<<(syd::ostream& os, const Token& token){
+        os << "Token Type: " << static_cast<int>(token.type) << ", Value:  " << token.value;
+        return os;
     }
 };
 
