@@ -47,7 +47,7 @@ class Token {
         std::cout << "Token Type: " << static_cast<int>(type) << ", Value: " << value << std::endl;
     }
 
-    friend std::ostream& operator<<(syd::ostream& os, const Token& token){
+    friend std::ostream& operator<<(std::ostream& os, const Token& token){
         os << "Token Type: " << static_cast<int>(token.type) << ", Value:  " << token.value;
         return os;
     }
