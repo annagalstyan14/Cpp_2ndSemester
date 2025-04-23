@@ -24,7 +24,7 @@ enum class OperatorType {
     EXPONENTIATION
 };
 
-enum class {
+enum class FunctionType {
     SIN,
     COS,
     TAN,
