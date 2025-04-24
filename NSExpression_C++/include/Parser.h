@@ -5,24 +5,24 @@
 #include <vector>
 #include <memory>
 
-class ExpressionMode {
+class ExpressionNode {
     public:
-    virtual ~ExpressionMode() = default;
+    virtual ~ExpressionNode() = default;
     virtual double evaluate() const = 0;
 };
 
-class NumberNode: public ExpressionMode {
+class NumberNode: public ExpressionNode {
     double value;
     public:
     NumberNode(double val) : value(val) {}
     double evaluate() const override {return value; }
 };
 
-class BinaryOpNode : public ExpressionMode {
+class BinaryOpNode : public ExpressionNode {
     char op;
-    std::unique_ptr<ExpressionMode> left, right;
+    std::unique_ptr<ExpressionNode> left, right;
     public:
-    BinaryOpNode(char o, std::unique_ptr<ExpressionMode> l, std::unique_ptr<ExpressionMode> r) : op(o), left(std::move(l)), right(std::move(r)) {}
+    BinaryOpNode(char o, std::unique_ptr<ExpressionNode> l, std::unique_ptr<ExpressionNode> r) : op(o), left(std::move(l)), right(std::move(r)) {}
     double evaluate() const override;
 };
 
@@ -34,13 +34,13 @@ class Parser {
     Token advance();
     bool match(TokenType type, const std::string& value = "");
 
-    std::unique_ptr<ExpressionMode> parseExpression();
-    std::unique_ptr<ExpressionMode> parseTerm();
-    std::unique_ptr<ExpressionMode> parseFactor();
+    std::unique_ptr<ExpressionNode> parseExpression();
+    std::unique_ptr<ExpressionNode> parseTerm();
+    std::unique_ptr<ExpressionNode> parseFactor();
 
     public:
     Parser(const std::vector<Token>& tokens);
-    std::unique_ptr<ExpressionMode> parse();
+    std::unique_ptr<ExpressionNode> parse();
 };
 
 #endif

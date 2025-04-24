@@ -21,3 +21,26 @@ bool Parser::match(const std::string& value){
     }
     return false;
 }
+
+ExpressionNode* Parser::parseFactor() {
+    Token token = advance();
+
+    if (token.type == TokenType::NUMBER){
+        return new NumberNode(std::stod(token.value));
+    }
+
+    if (token.type == TokenType::FUNCTION){
+        if (!match("(")) {
+            throw std::runtime_error("Expected '(' after fucntion name");
+        }
+        ExpressionNode* arg = parseExpression();
+        if (!match("(")) {
+            throw std::runtime_error("Expected ')' after the function argument");
+        }
+        return new FunctionNode(token.value, arg);
+    }
+
+    if (token.value == "("){
+        ExpressionNode
+    }
+}
