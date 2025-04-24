@@ -11,7 +11,7 @@ char Lexer::currentChar() const {
 
 char Lexer::nextChar() {
     if (position + 1 < input.length()) {
-        return input[position + 1 ];
+        return input[position + 1];
     }
     return '\0';
 }
@@ -30,16 +30,16 @@ bool Lexer::isDigit(char c) const {
     return c >= '0' && c <= '9';
 }
 
-bool Lexer::isOperator(char c ) const {
-    return c == '+' || c == '-' || c == '*' || c == '/';
+bool Lexer::isOperator(char c) const {
+    return c == '+' || c == '-' || c == '*' || c == '/' || c == '^';
 }
 
 bool Lexer::isParathesis(char c) const {
     return c == '(' || c == ')';
 }
 
-bool Lexer::isFunction (const std::string& str) const {
-    return str == "sin" || str == "cos" || str == "tan" || str == "log";
+bool Lexer::isFunction(const std::string& str) const {
+    return str == "sin" || str == "cos" || str == "tan" || str == "log" || str == "sqrt";
 }
 
 void Lexer::handleNumber() {
@@ -54,6 +54,15 @@ void Lexer::handleNumber() {
 void Lexer::handleOperator() {
     std::string op(1, currentChar());
     OperatorPrecedence precedence = OperatorPrecedence::LOW;
+    
+    if (op == "^") {
+        precedence = OperatorPrecedence::HIGH;
+    } else if (op == "*" || op == "/") {
+        precedence = OperatorPrecedence::HIGH;
+    } else if (op == "+" || op == "-") {
+        precedence = OperatorPrecedence::MEDIUM;
+    }
+    
     tokens.push_back(Token(TokenType::OPERATOR, op, precedence));
     advance();
 }
@@ -79,16 +88,15 @@ std::vector<Token> Lexer::tokenize() {
     tokens.clear();
     while (position < input.length()) {
         char c = currentChar();
-        if (isWhitespace(c))
-        {
+        if (isWhitespace(c)) {
             advance();
-        } else if (isDigit(c)){
+        } else if (isDigit(c)) {
             handleNumber();
-        } else if (isOperator(c)){
+        } else if (isOperator(c)) {
             handleOperator();
-        } else if (isParathesis(c)){
+        } else if (isParathesis(c)) {
             handleParanthesis();
-        } else if (isalpha(c)){
+        } else if (isalpha(c)) {
             handleFunction();
         } else {
             std::cerr << "Error: Unexpected character '" << c << "'\n";

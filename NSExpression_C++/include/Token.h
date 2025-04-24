@@ -3,6 +3,7 @@
 
 #include <string>
 #include <iostream>
+
 enum class TokenType { 
     NUMBER, 
     OPERATOR, 
@@ -15,21 +16,6 @@ enum class OperatorPrecedence {
     LOW, 
     MEDIUM, 
     HIGH
-};
-
-enum class OperatorType {
-    ADDITION,
-    SUBTRACTION,
-    MULTIPLICATION,
-    DIVISION,
-    EXPONENTIATION
-};
-
-enum class FunctionType {
-    SIN,
-    COS,
-    TAN,
-    LOG
 };
 
 class Token {
