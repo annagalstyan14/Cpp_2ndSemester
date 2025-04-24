@@ -4,7 +4,7 @@
 #include "Utilities.h"
 #include <stdexcept>
 
-Parser::Parser(cosnt std::vector<Token>& tokens) : tokens(tokens), position(0){}
+Parser::Parser(const std::vector<Token>& tokens) : tokens(tokens), position(0){}
 
 Token Parser::peek() const {
     return (position < tokens.size()) ? tokens[position] : Token(TokenType::OPERATOR, "");
