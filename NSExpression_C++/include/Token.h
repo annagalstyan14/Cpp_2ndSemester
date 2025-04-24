@@ -7,7 +7,8 @@ enum class TokenType {
     NUMBER, 
     OPERATOR, 
     FUNCTION, 
-    PARENTHESIS
+    PARENTHESIS,
+    EOF_TOKEN
 };
 
 enum class OperatorPrecedence {
