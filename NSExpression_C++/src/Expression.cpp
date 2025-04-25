@@ -2,8 +2,8 @@
 #include <cmath>
 #include <stdexcept>
 
-// Add a global symbol table
-static SymbolTable symbolTable;
+
+//static SymbolTable symbolTable;
 
 double BinaryOpNode::evaluate() const {
     double leftVal = left->evaluate();

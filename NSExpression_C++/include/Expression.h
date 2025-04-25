@@ -45,12 +45,12 @@ class FunctionNode : public ExpressionNode {
     double evaluate() const override;
 };
 
-class SymbolTable {
+/*class SymbolTable {
     public:
     double getVariable(const std::string& name) const {
         throw std::runtime_error("Undefined variable: " + name);
     }
-};
+};*/
 
 class VariableNode: public ExpressionNode {
     std::string name;
