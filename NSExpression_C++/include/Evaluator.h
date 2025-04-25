@@ -5,7 +5,7 @@
 
 class Evaluator {
     public:
-    static double evaluate(const std::shared_ptr<ExpressionNode>& root, const SymbolTable& symbols);
+    static double evaluate(const std::shared_ptr<ExpressionNode>& root);
 };
 
 #endif

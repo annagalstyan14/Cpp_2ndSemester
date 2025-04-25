@@ -1,0 +1,3 @@
+/Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/build/CMakeFiles/NSExpression_CPP.dir
+/Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/build/CMakeFiles/edit_cache.dir
+/Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/build/CMakeFiles/rebuild_cache.dir

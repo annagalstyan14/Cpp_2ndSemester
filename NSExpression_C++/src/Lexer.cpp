@@ -1,6 +1,7 @@
 #include "Lexer.h"
 #include <cctype>
 #include <iostream>
+#include <cmath>
 
 char Lexer::currentChar() const {
     if (position < input.length()) {
@@ -39,15 +40,36 @@ bool Lexer::isParathesis(char c) const {
 }
 
 bool Lexer::isFunction(const std::string& str) const {
-    return str == "sin" || str == "cos" || str == "tan" || str == "log" || str == "sqrt";
+    return str == "sin" || str == "cos" || str == "tan" || 
+           str == "asin" || str == "arcsin" || 
+           str == "acos" || str == "arccos" || 
+           str == "atan" || str == "arctan" || 
+           str == "log" || str == "ln" || str == "log10" || str == "log2" || 
+           str == "exp" || 
+           str == "sqrt" || str == "cbrt" || str == "root" || 
+           str == "pow" || 
+           str == "fact" || str == "factorial";
 }
 
 void Lexer::handleNumber() {
     std::string number = "";
-    while(isDigit(currentChar())) {
+    bool hasDecimalPoint = false;
+    
+    while(isDigit(currentChar()) || currentChar() == '.') {
+        if (currentChar() == '.') {
+            if (hasDecimalPoint) {
+                throw std::runtime_error("Invalid number: multiple decimal points");
+            }
+            hasDecimalPoint = true;
+        }
         number += currentChar();
         advance();
     }
+    
+    if (number.back() == '.') {
+        throw std::runtime_error("Invalid number: ends with decimal point");
+    }
+    
     tokens.push_back(Token(TokenType::NUMBER, number));
 }
 
@@ -81,6 +103,8 @@ void Lexer::handleFunction() {
     }
     if (isFunction(func)) {
         tokens.push_back(Token(TokenType::FUNCTION, func));
+    } else {
+        throw std::runtime_error("Unknown function: " + func);
     }
 }
 
@@ -90,7 +114,7 @@ std::vector<Token> Lexer::tokenize() {
         char c = currentChar();
         if (isWhitespace(c)) {
             advance();
-        } else if (isDigit(c)) {
+        } else if (isDigit(c) || c == '.') {
             handleNumber();
         } else if (isOperator(c)) {
             handleOperator();
@@ -99,10 +123,10 @@ std::vector<Token> Lexer::tokenize() {
         } else if (isalpha(c)) {
             handleFunction();
         } else {
-            std::cerr << "Error: Unexpected character '" << c << "'\n";
-            advance();
+            throw std::runtime_error(std::string("Unexpected character: ") + c);
         }
     }
 
+    tokens.push_back(Token(TokenType::EOF_TOKEN, ""));
     return tokens;
 }
