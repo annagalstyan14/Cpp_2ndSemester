@@ -72,7 +72,6 @@ public:
     FunctionNode(const std::string& name,
                  const std::vector<std::shared_ptr<ExpressionNode>>& args)
         : funcName(name), arguments(args) {}
-
     double evaluate() const override {
         if (arguments.empty()) {
             throw std::runtime_error("Function " + funcName + " called with no arguments");
