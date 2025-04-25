@@ -2,61 +2,73 @@
 #define EXPRESSION_H
 
 #include <string>
+#include <memory>
+#include <optional>
+#include <unordered_map>
 
-class ExpressionNode {
-    public:
-    virtual ~ExpressionNode() = default;
-    virtual double evaluate() const = 0;
+// ===== SYMBOL TABLE =====
+class SymbolTable {
+public:
+    void set(const std::string& name, double value);
+    std::optional<double> get(const std::string& name) const;
+    bool contains(const std::string& name) const;
+    void clear();
+private:
+    std::unordered_map<std::string, double> table;
 };
 
+// ===== ABSTRACT BASE NODE =====
+class ExpressionNode {
+public:
+    virtual double evaluate(const SymbolTable& symbols) const = 0;
+    virtual ~ExpressionNode() = default;
+};
+
+// ===== BINARY OPERATOR NODE =====
 class BinaryOpNode : public ExpressionNode {
     std::string op;
-    ExpressionNode* left;
-    ExpressionNode* right;
+    std::shared_ptr<ExpressionNode> left;
+    std::shared_ptr<ExpressionNode> right;
+public:
+    BinaryOpNode(const std::string& oper,
+                 std::shared_ptr<ExpressionNode> lhs,
+                 std::shared_ptr<ExpressionNode> rhs)
+        : op(oper), left(lhs), right(rhs) {}
 
-    public:
-    BinaryOpNode(const std::string& oper, ExpressionNode* lhs, ExpressionNode*rhs) : op(oper), left(lhs), right(rhs) {}
-    double evaluate() const override;
+    double evaluate(const SymbolTable& symbols) const override;
 };
 
-class UnaryOpNode : public ExpressionNode {
+// ===== UNARY OPERATOR NODE =====
+class UnaryOperatorNode : public ExpressionNode {
     std::string op;
-    ExpressionNode* operand;
+    std::shared_ptr<ExpressionNode> operand;
+public:
+    UnaryOperatorNode(const std::string& oper,
+                      std::shared_ptr<ExpressionNode> opnd)
+        : op(oper), operand(opnd) {}
 
-    public:
-    UnaryOpNode(const std::string& oper, ExpressionNode* expr) :op(oper), operand(expr){}
-    double evaluate() const override;
+    double evaluate(const SymbolTable& symbols) const override;
 };
 
-class NumberNode : public ExpressionNode{
-    double value;
-
-    public:
-    NumberNode(double val): value(val){}
-    double evaluate() const override{ return value; }
-};
-
+// ===== FUNCTION NODE =====
 class FunctionNode : public ExpressionNode {
     std::string funcName;
-    ExpressionNode* argument;
+    std::shared_ptr<ExpressionNode> argument;
+public:
+    FunctionNode(const std::string& name,
+                 std::shared_ptr<ExpressionNode> arg)
+        : funcName(name), argument(arg) {}
 
-    public:
-    FunctionNode(const std::string& name, ExpressionNode* arg) : funcName(name), argument(arg){}
-    double evaluate() const override;
+    double evaluate(const SymbolTable& symbols) const override;
 };
 
-/*class SymbolTable {
-    public:
-    double getVariable(const std::string& name) const {
-        throw std::runtime_error("Undefined variable: " + name);
-    }
-};*/
-
-class VariableNode: public ExpressionNode {
+// ===== VARIABLE NODE =====
+class VariableNode : public ExpressionNode {
     std::string name;
-    public:
-    VariableNode(const std::string& n) : name(n){}
-    double evaluate() const override;
+public:
+    VariableNode(const std::string& n) : name(n) {}
+
+    double evaluate(const SymbolTable& symbols) const override;
 };
 
-#endif
+#endif // EXPRESSION_H

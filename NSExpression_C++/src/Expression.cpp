@@ -1,13 +1,32 @@
-#include "Parser.h"
+#include "Expression.h"
 #include <cmath>
 #include <stdexcept>
 
+// ===== SYMBOL TABLE IMPLEMENTATION =====
+void SymbolTable::set(const std::string& name, double value){
+    table[name] = value;
+}
 
-//static SymbolTable symbolTable;
+std::optional<double> SymbolTable::get(const std::string& name) const {
+    auto it = table.find(name);
+    if (it != table.end()){
+        return it->second;
+    }
+    return std::nullopt;
+}
 
-double BinaryOpNode::evaluate() const {
-    double leftVal = left->evaluate();
-    double rightVal = right->evaluate();
+bool SymbolTable::contains(const std::string& name) const {
+    return table.find(name) != table.end();
+}
+
+void SymbolTable::clear(){
+    table.clear();
+}
+
+// ===== NODE EVALUATION FUNCTIONS =====
+double BinaryOpNode::evaluate(const SymbolTable& symbols) const {
+    double leftVal = left->evaluate(symbols);
+    double rightVal = right->evaluate(symbols);
 
     if (op == "+") return leftVal + rightVal;
     if (op == "-") return leftVal - rightVal;
@@ -20,15 +39,15 @@ double BinaryOpNode::evaluate() const {
     throw std::runtime_error("Unknown operator: " + op);
 }
 
-double UnaryOperatorNode::evaluate() const {
-    double val = operand->evaluate();
+double UnaryOperatorNode::evaluate(const SymbolTable& symbols) const {
+    double val = operand->evaluate(symbols);
     if (op == "-") return -val;
     throw std::runtime_error("Unknown unary operator: " + op);
 }
 
-double FunctionNode::evaluate() const {
-    double arg = argument->evaluate();
-    
+double FunctionNode::evaluate(const SymbolTable& symbols) const {
+    double arg = argument->evaluate(symbols);
+
     if (funcName == "sin") return std::sin(arg);
     if (funcName == "cos") return std::cos(arg);
     if (funcName == "tan") return std::tan(arg);
@@ -43,12 +62,10 @@ double FunctionNode::evaluate() const {
     throw std::runtime_error("Unknown function: " + funcName);
 }
 
-// Add a new node type for variables and constants
-class VariableNode : public ExpressionNode {
-    std::string name;
-public:
-    VariableNode(const std::string& n) : name(n) {}
-    double evaluate() const override {
-        return symbolTable.getVariable(name);
+double VariableNode::evaluate(const SymbolTable& symbols) const {
+    auto value = symbols.get(name);
+    if (!value.has_value()) {
+        throw std::runtime_error("Undefined variable: " + name);
     }
-};
+    return *value;
+}
