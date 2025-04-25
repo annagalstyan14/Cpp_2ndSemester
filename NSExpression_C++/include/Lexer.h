@@ -28,6 +28,7 @@ class Lexer {
     void handleNumber();
     void handleOperator();
     void handleParanthesis();
+    void handleComma();
     void handleFunction();
 };
 

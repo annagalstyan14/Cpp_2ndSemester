@@ -9,6 +9,7 @@ enum class TokenType {
     OPERATOR, 
     FUNCTION, 
     PARENTHESIS,
+    COMMA,
     EOF_TOKEN
 };
 

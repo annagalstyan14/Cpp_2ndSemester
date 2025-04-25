@@ -108,6 +108,11 @@ void Lexer::handleFunction() {
     }
 }
 
+void Lexer::handleComma() {
+    tokens.push_back(Token(TokenType::COMMA, ","));
+    advance();
+}
+
 std::vector<Token> Lexer::tokenize() {
     tokens.clear();
     while (position < input.length()) {
@@ -120,6 +125,8 @@ std::vector<Token> Lexer::tokenize() {
             handleOperator();
         } else if (isParathesis(c)) {
             handleParanthesis();
+        } else if (c == ',') {
+            handleComma();
         } else if (isalpha(c)) {
             handleFunction();
         } else {
