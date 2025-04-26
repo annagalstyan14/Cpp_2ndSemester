@@ -36,7 +36,7 @@ bool Lexer::isOperator(char c) const {
 }
 
 bool Lexer::isParathesis(char c) const {
-    return c == '(' || c == ')';
+    return c == '(' || c == ')' || c == ',';
 }
 
 bool Lexer::isFunction(const std::string& str) const {
@@ -123,10 +123,11 @@ std::vector<Token> Lexer::tokenize() {
             handleNumber();
         } else if (isOperator(c)) {
             handleOperator();
-        } else if (isParathesis(c)) {
+        } else if (c == '(' || c == ')') {
             handleParanthesis();
         } else if (c == ',') {
-            handleComma();
+            tokens.push_back(Token(TokenType::COMMA, ","));
+            advance();
         } else if (isalpha(c)) {
             handleFunction();
         } else {
