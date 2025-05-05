@@ -1,29 +1,56 @@
 #include "Utilities.h"
 #include <sstream>
-#include <stdexcept>
 #include <cctype>
+#include <algorithm>
 
-namespace Utils {
+// Convert string to double
+double Utils::toDouble(const std::string& s) {
+    std::istringstream iss(s);
+    double value;
+    if (!(iss >> value)) {
+        throw std::invalid_argument("Invalid number format: " + s);
+    }
+    return value;
+}
 
-    double toDouble(const std::string& s){
-        std::stringstream ss(s);
-        double result;
-        ss << result;
-        if (ss.fail()) throw std::runtime_error("Invalid number: "+ s);
-        return result;
+// Trim leading and trailing whitespace from a string
+std::string Utils::trim(const std::string& s) {
+    size_t start = 0;
+    size_t end = s.size() - 1;
+
+    // Trim leading whitespace
+    while (start <= end && std::isspace(s[start])) {
+        ++start;
     }
 
-    std::string trim(const std::string& s){
-        size_t start = s.find_first_not_of(" \t\n\r");
-        size_t end = s.find_last_not_of(" \t\n\r");
-        return (start == std::string::npos) ? "" : s.substr(start, end - start + 1);
+    // Trim trailing whitespace
+    while (end >= start && std::isspace(s[end])) {
+        --end;
     }
 
-    bool isNumber(const std::string& s){
-        std::string str = trim(s);
-        if (str.empty()) return false;
-        char* end;
-        std::strtod(str.c_str(), &end);
-        return (*end == '\0');
+    return s.substr(start, end - start + 1);
+}
+
+// Check if a string is a valid number
+bool Utils::isNumber(const std::string& s) {
+    if (s.empty()) return false;
+
+    // Check for a leading '-' (optional)
+    size_t start = 0;
+    if (s[0] == '-') {
+        start = 1;
     }
+
+    bool hasDot = false;
+    for (size_t i = start; i < s.size(); ++i) {
+        if (std::isdigit(s[i])) {
+            continue;
+        }
+        if (s[i] == '.' && !hasDot) {
+            hasDot = true;
+            continue;
+        }
+        return false;  // invalid character found
+    }
+    return true;
 }
