@@ -1,22 +1,11 @@
 #ifndef LEXER_H
 #define LEXER_H
 
-#include <string>
-#include <vector>
-#include <cctype>
 #include "Token.h"
+#include <vector>
 
 class Lexer {
-    public:
-    explicit Lexer(const std::string& input) : input(input), position(0) {}
-
-    std::vector<Token> tokenize();
-
-    Token getNextToken();
-
-    void reset();
-
-    private:
+private:
     std::string input;
     size_t position;
     std::vector<Token> tokens;
@@ -24,22 +13,24 @@ class Lexer {
     char currentChar() const;
     char nextChar();
     void advance();
+
     bool isWhitespace(char c) const;
     bool isDigit(char c) const;
     bool isOperator(char c) const;
     bool isParathesis(char c) const;
     bool isFunction(const std::string& str) const;
-    bool isConstant(const std::string& str) const;
+
     void handleNumber();
     void handleOperator();
     void handleParanthesis();
-    void handleComma();
     void handleFunction();
     void handleVariable();
-    
+    void handleComma();
+    void handleIdentifierOrFunction();
 
-    Token number();
-    Token indentifier();
+public:
+    Lexer(const std::string& input) : input(input), position(0) {}
+    std::vector<Token> tokenize();
 };
 
 #endif

@@ -1,11 +1,9 @@
 #include "../include/Parser.h"
 #include "../include/Token.h"
-#include "../include/Lexer.h"
-#include "../include/Utilities.h"
+#include "../include/Expression.h"
 #include <stdexcept>
-#include <memory>
-#include <iostream>
 #include <cmath>
+#include <iostream>
 
 Parser::Parser(const std::vector<Token>& tokens) : tokens(tokens), position(0) {}
 
@@ -29,7 +27,73 @@ bool Parser::match(const std::string& value) {
     return false;
 }
 
-std::shared_ptr<ExpressionNode> Parser::parseFactor() {
+std::shared_ptr<ExpressionNode> Parser::parse() {
+    auto expr = parseEquality();
+
+    if (position < tokens.size() - 1) {
+        throw std::runtime_error("Unexpected token after expression: " + current().value);
+    }
+
+    return expr;
+}
+
+std::shared_ptr<ExpressionNode> Parser::parseEquality() {
+    auto left = parseAdditive();
+
+    if (match("=")) {
+        auto right = parseEquality(); // recursion to allow chained = (e.g., a = b = 2)
+        return std::make_shared<EquationNode>(left, right);
+    }
+
+    return left;
+}
+
+std::shared_ptr<ExpressionNode> Parser::parseAdditive() {
+    auto left = parseMultiplicative();
+
+    while (current().value == "+" || current().value == "-") {
+        std::string op = advance().value;
+        auto right = parseMultiplicative();
+        left = std::make_shared<BinaryOpNode>(op, left, right);
+    }
+
+    return left;
+}
+
+std::shared_ptr<ExpressionNode> Parser::parseMultiplicative() {
+    auto left = parseExponentiation();
+
+    while (current().value == "*" || current().value == "/") {
+        std::string op = advance().value;
+        auto right = parseExponentiation();
+        left = std::make_shared<BinaryOpNode>(op, left, right);
+    }
+
+    return left;
+}
+
+std::shared_ptr<ExpressionNode> Parser::parseExponentiation() {
+    auto left = parseUnary();
+
+    while (current().value == "^") {
+        advance(); // skip '^'
+        auto right = parseUnary();  // right-associative (could use parseExponentiation here if you want true right-associativity)
+        left = std::make_shared<BinaryOpNode>("^", left, right);
+    }
+
+    return left;
+}
+
+std::shared_ptr<ExpressionNode> Parser::parseUnary() {
+    if (match("-")) {
+        auto operand = parseUnary();
+        return std::make_shared<UnaryOperatorNode>("-", operand);
+    }
+
+    return parsePrimary();
+}
+
+std::shared_ptr<ExpressionNode> Parser::parsePrimary() {
     Token token = advance();
 
     if (token.type == TokenType::NUMBER) {
@@ -40,66 +104,27 @@ std::shared_ptr<ExpressionNode> Parser::parseFactor() {
         if (!match("(")) {
             throw std::runtime_error("Expected '(' after function name");
         }
-        
+
         std::vector<std::shared_ptr<ExpressionNode>> args;
-        args.push_back(parseExpression());
-        
-        // Handle functions with two arguments (pow, root)
+        args.push_back(parse());
+
         if ((token.value == "pow" || token.value == "root") && match(",")) {
-            args.push_back(parseExpression());
+            args.push_back(parse());
         }
-        
+
         if (!match(")")) {
             throw std::runtime_error("Expected ')' after function arguments");
         }
-        return std::make_shared<FunctionNode>(token.value, args);
-    }
 
-    if (token.value == "(") {
-        auto expr = parseExpression();
+        return std::make_shared<FunctionNode>(token.value, args);
+    } else if (token.value == "(") {
+        auto expr = parse();
         if (!match(")")) {
             throw std::runtime_error("Expected ')' after expression");
         }
         return expr;
     }
 
-    if (token.value == "-") {
-        auto right = parseFactor(); // unary minus
-        return std::make_shared<UnaryOperatorNode>("-", right);
-    }
-
-    throw std::runtime_error("Unexpected token in factor: " + token.value);
+    throw std::runtime_error("Unexpected token in primary: " + token.value);
 }
 
-std::shared_ptr<ExpressionNode> Parser::parseTerm() {
-    auto left = parseFactor();
-
-    while (current().type != TokenType::EOF_TOKEN && (current().value == "*" || current().value == "/")) {
-        std::string op = advance().value;
-        auto right = parseFactor();
-        left = std::make_shared<BinaryOpNode>(op, left, right);
-    }
-    return left;
-}
-
-std::shared_ptr<ExpressionNode> Parser::parseExpression() {
-    auto left = parseTerm();
-
-    while (current().type != TokenType::EOF_TOKEN && (current().value == "+" || current().value == "-")) {
-        std::string op = advance().value;
-        auto right = parseTerm();
-        left = std::make_shared<BinaryOpNode>(op, left, right);
-    }
-
-    return left;
-}
-
-std::shared_ptr<ExpressionNode> Parser::parse() {
-    auto expr = parseExpression();
-
-    if (position < tokens.size() - 1) { // -1 to account for EOF token
-        throw std::runtime_error("Unexpected token after end of expression: " + current().value);
-    }
-
-    return expr;
-}

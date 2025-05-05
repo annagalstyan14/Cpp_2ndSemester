@@ -40,21 +40,21 @@ bool Lexer::isParathesis(char c) const {
 }
 
 bool Lexer::isFunction(const std::string& str) const {
-    return str == "sin" || str == "cos" || str == "tan" || 
-           str == "asin" || str == "arcsin" || 
-           str == "acos" || str == "arccos" || 
-           str == "atan" || str == "arctan" || 
-           str == "log" || str == "ln" || str == "log10" || str == "log2" || 
-           str == "exp" || 
-           str == "sqrt" || str == "cbrt" || str == "root" || 
-           str == "pow" || 
+    return str == "sin" || str == "cos" || str == "tan" ||
+           str == "asin" || str == "arcsin" ||
+           str == "acos" || str == "arccos" ||
+           str == "atan" || str == "arctan" ||
+           str == "log" || str == "ln" || str == "log10" || str == "log2" ||
+           str == "exp" ||
+           str == "sqrt" || str == "cbrt" || str == "root" ||
+           str == "pow" ||
            str == "fact" || str == "factorial";
 }
 
 void Lexer::handleNumber() {
     std::string number = "";
     bool hasDecimalPoint = false;
-    
+
     while(isDigit(currentChar()) || currentChar() == '.') {
         if (currentChar() == '.') {
             if (hasDecimalPoint) {
@@ -65,18 +65,18 @@ void Lexer::handleNumber() {
         number += currentChar();
         advance();
     }
-    
+
     if (number.back() == '.') {
         throw std::runtime_error("Invalid number: ends with decimal point");
     }
-    
+
     tokens.push_back(Token(TokenType::NUMBER, number));
 }
 
 void Lexer::handleOperator() {
     std::string op(1, currentChar());
     OperatorPrecedence precedence = OperatorPrecedence::LOW;
-    
+
     if (op == "^") {
         precedence = OperatorPrecedence::HIGH;
     } else if (op == "*" || op == "/") {
@@ -84,7 +84,7 @@ void Lexer::handleOperator() {
     } else if (op == "+" || op == "-") {
         precedence = OperatorPrecedence::MEDIUM;
     }
-    
+
     tokens.push_back(Token(TokenType::OPERATOR, op, precedence));
     advance();
 }
@@ -104,7 +104,7 @@ void Lexer::handleFunction() {
     if (isFunction(func)) {
         tokens.push_back(Token(TokenType::FUNCTION, func));
     } else {
-        throw std::runtime_error("Unknown function: " + func);
+        tokens.push_back(Token(TokenType::IDENTIFIER, func)); // treat as variable/identifier if not a function
     }
 }
 
@@ -134,24 +134,11 @@ std::vector<Token> Lexer::tokenize() {
         } else if (c == ',') {
             handleComma();
         } else if (isalpha(c)) {
-    std::string identifier = "";
-
-    while (isalnum(currentChar()) || currentChar() == '_') {
-        identifier += currentChar();
-        advance();
-    }
-
-    if (isFunction(identifier)) {
-        tokens.push_back(Token(TokenType::FUNCTION, identifier));
-    } 
-    else if (isConstant(identifier)) {
-        tokens.push_back(Token(TokenType::CONSTANT, identifier));
-    }
-    else {
-        tokens.push_back(Token(TokenType::VARIABLE, identifier));
-    }
-}
-else {
+            handleFunction();
+        } else if (c == '=') {
+            advance();
+            tokens.push_back(Token(TokenType::EQUALS, "="));
+        } else {
             throw std::runtime_error(std::string("Unexpected character: ") + c);
         }
     }
@@ -160,8 +147,3 @@ else {
     return tokens;
 }
 
-bool Lexer::isConstant(const std::string& str) const {
-    return str == "pi" || str == "e" || str == "g" || 
-           str == "c" || str == "Na" || str == "h" || 
-           str == "G" || str == "k";
-}

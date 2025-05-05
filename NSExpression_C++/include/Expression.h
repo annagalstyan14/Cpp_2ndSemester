@@ -1,56 +1,58 @@
 #ifndef EXPRESSION_H
 #define EXPRESSION_H
 
-#include <memory>
-#include <map>
 #include <string>
-#include <stdexcept>
+#include <memory>
+#include <cmath>
+#include <vector>
+#include <map>
 
+// ===== ABSTRACT BASE NODE =====
 class ExpressionNode {
 public:
-    virtual ~ExpressionNode() = default;
     virtual double evaluate(const std::map<std::string, double>& variables = {}) const = 0;
+    virtual ~ExpressionNode() = default;
 };
 
-class NumberExpression : public ExpressionNode {
+// ===== NUMBER NODE =====
+class NumberNode : public ExpressionNode {
     double value;
 public:
-    NumberExpression(double value) : value(value) {}
-    double evaluate(const std::map<std::string, double>& variables) const override {
-        return value;
-    }
+    NumberNode(double val);
+    double evaluate(const std::map<std::string, double>& variables = {}) const override;
 };
 
-class VariableExpression : public ExpressionNode {
-private:
-    std::string name;
-public:
-    VariableExpression(const std::string& name) : name(name) {}
-    double evaluate(const std::map<std::string, double>& variables) const override {
-        auto it = variables.find(name);
-        if (it == variables.end()) {
-            throw std::runtime_error("Variable " + name + " not found");
-        }
-        return it->second;
-    }
-};
-
-class BinaryExpression : public ExpressionNode {
+// ===== BINARY OPERATOR NODE =====
+class BinaryOpNode : public ExpressionNode {
+    std::string op;
     std::shared_ptr<ExpressionNode> left;
     std::shared_ptr<ExpressionNode> right;
-    std::string op;
 public:
-    BinaryExpression(std::shared_ptr<ExpressionNode> left, const std::string& op, std::shared_ptr<ExpressionNode> right)
-        : left(left), right(right), op(op) {}
-    double evaluate(const std::map<std::string, double>& variables) const override {
-        double leftValue = left->evaluate(variables);
-        double rightValue = right->evaluate(variables);
-        if (op == "+") return leftValue + rightValue;
-        if (op == "-") return leftValue - rightValue;
-        if (op == "*") return leftValue * rightValue;
-        if (op == "/") return leftValue / rightValue;
-        throw std::runtime_error("Unknown operator: " + op);
-    }
+    BinaryOpNode(const std::string& oper,
+                 std::shared_ptr<ExpressionNode> lhs,
+                 std::shared_ptr<ExpressionNode> rhs);
+    double evaluate(const std::map<std::string, double>& variables = {}) const override;
+};
+
+// ===== UNARY OPERATOR NODE =====
+class UnaryOperatorNode : public ExpressionNode {
+    std::string op;
+    std::shared_ptr<ExpressionNode> operand;
+public:
+    UnaryOperatorNode(const std::string& oper,
+                      std::shared_ptr<ExpressionNode> opnd);
+    double evaluate(const std::map<std::string, double>& variables = {}) const override;
+};
+
+// ===== FUNCTION NODE =====
+class FunctionNode : public ExpressionNode {
+    std::string funcName;
+    std::vector<std::shared_ptr<ExpressionNode>> arguments;
+public:
+    FunctionNode(const std::string& name,
+                 const std::vector<std::shared_ptr<ExpressionNode>>& args);
+    double evaluate(const std::map<std::string, double>& variables = {}) const override;
 };
 
 #endif // EXPRESSION_H
+
