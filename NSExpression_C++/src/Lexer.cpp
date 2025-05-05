@@ -108,6 +108,12 @@ void Lexer::handleFunction() {
     }
 }
 
+void Lexer::handleVariable() {
+    std::string var(1, currentChar());
+    tokens.push_back(Token(TokenType::VARIABLE, var));
+    advance();
+}
+
 void Lexer::handleComma() {
     tokens.push_back(Token(TokenType::COMMA, ","));
     advance();
@@ -126,15 +132,36 @@ std::vector<Token> Lexer::tokenize() {
         } else if (c == '(' || c == ')') {
             handleParanthesis();
         } else if (c == ',') {
-            tokens.push_back(Token(TokenType::COMMA, ","));
-            advance();
+            handleComma();
         } else if (isalpha(c)) {
-            handleFunction();
-        } else {
+    std::string identifier = "";
+
+    while (isalnum(currentChar()) || currentChar() == '_') {
+        identifier += currentChar();
+        advance();
+    }
+
+    if (isFunction(identifier)) {
+        tokens.push_back(Token(TokenType::FUNCTION, identifier));
+    } 
+    else if (isConstant(identifier)) {
+        tokens.push_back(Token(TokenType::CONSTANT, identifier));
+    }
+    else {
+        tokens.push_back(Token(TokenType::VARIABLE, identifier));
+    }
+}
+else {
             throw std::runtime_error(std::string("Unexpected character: ") + c);
         }
     }
 
     tokens.push_back(Token(TokenType::EOF_TOKEN, ""));
     return tokens;
+}
+
+bool Lexer::isConstant(const std::string& str) const {
+    return str == "pi" || str == "e" || str == "g" || 
+           str == "c" || str == "Na" || str == "h" || 
+           str == "G" || str == "k";
 }

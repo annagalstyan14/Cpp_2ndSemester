@@ -10,6 +10,9 @@ enum class TokenType {
     FUNCTION, 
     PARENTHESIS,
     COMMA,
+    IDENTIFIER,
+    CONSTANT,
+    EQUALS,
     EOF_TOKEN
 };
 
@@ -30,6 +33,9 @@ class Token {
 
     Token(TokenType t, std::string v, OperatorPrecedence p)
         : type(t), value(v), precedence(p) {}
+
+    Token(TokenType t, const std::string& v = "") 
+        : type(t), value(v), precedence(OperatorPrecedence::LOW) {}
 
     void displayToken() const {
         std::cout << "Token Type: " << static_cast<int>(type) << ", Value: " << value << std::endl;

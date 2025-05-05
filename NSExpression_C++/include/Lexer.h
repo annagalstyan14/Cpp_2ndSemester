@@ -8,9 +8,13 @@
 
 class Lexer {
     public:
-    Lexer(const std::string& input) : input(input), position(0) {}
+    explicit Lexer(const std::string& input) : input(input), position(0) {}
 
     std::vector<Token> tokenize();
+
+    Token getNextToken();
+
+    void reset();
 
     private:
     std::string input;
@@ -25,11 +29,17 @@ class Lexer {
     bool isOperator(char c) const;
     bool isParathesis(char c) const;
     bool isFunction(const std::string& str) const;
+    bool isConstant(const std::string& str) const;
     void handleNumber();
     void handleOperator();
     void handleParanthesis();
     void handleComma();
     void handleFunction();
+    void handleVariable();
+    
+
+    Token number();
+    Token indentifier();
 };
 
 #endif

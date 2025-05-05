@@ -34,9 +34,9 @@ std::shared_ptr<ExpressionNode> Parser::parseFactor() {
 
     if (token.type == TokenType::NUMBER) {
         return std::make_shared<NumberNode>(std::stod(token.value));
-    }
-
-    if (token.type == TokenType::FUNCTION) {
+    } else if (token.type == TokenType::VARIABLE) {
+        return std::make_shared<VariableNode>(token.value);
+    } else if (token.type == TokenType::FUNCTION) {
         if (!match("(")) {
             throw std::runtime_error("Expected '(' after function name");
         }
