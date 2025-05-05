@@ -3,6 +3,8 @@
 
 #include "Token.h"
 #include <vector>
+#include <string>
+#include <stdexcept>
 
 class Lexer {
 private:
@@ -19,6 +21,7 @@ private:
     bool isOperator(char c) const;
     bool isParathesis(char c) const;
     bool isFunction(const std::string& str) const;
+    bool isConstant(const std::string& str) const;
 
     void handleNumber();
     void handleOperator();

@@ -1,11 +1,12 @@
-#include "../include/Parser.h"
-#include "../include/Token.h"
-#include "../include/Expression.h"
+#include "Parser.h"
+#include "Token.h"
+#include "Expression.h"
 #include <stdexcept>
 #include <cmath>
 #include <iostream>
 
-Parser::Parser(const std::vector<Token>& tokens) : tokens(tokens), position(0) {}
+Parser::Parser(const std::vector<Token>& tokens, const std::map<std::string, double>& variables)
+    : tokens(tokens), position(0), variables(variables) {}
 
 Token Parser::peek() const {
     return (position < tokens.size()) ? tokens[position] : Token(TokenType::EOF_TOKEN, "");
@@ -27,6 +28,18 @@ bool Parser::match(const std::string& value) {
     return false;
 }
 
+bool Parser::matchType(TokenType type) {
+    if (peek().type == type) {
+        advance();
+        return true;
+    }
+    return false;
+}
+
+bool Parser::check(TokenType type) const {
+    return peek().type == type;
+}
+
 std::shared_ptr<ExpressionNode> Parser::parse() {
     auto expr = parseEquality();
 
@@ -41,7 +54,7 @@ std::shared_ptr<ExpressionNode> Parser::parseEquality() {
     auto left = parseAdditive();
 
     if (match("=")) {
-        auto right = parseEquality(); // recursion to allow chained = (e.g., a = b = 2)
+        auto right = parseEquality();
         return std::make_shared<EquationNode>(left, right);
     }
 
@@ -76,8 +89,8 @@ std::shared_ptr<ExpressionNode> Parser::parseExponentiation() {
     auto left = parseUnary();
 
     while (current().value == "^") {
-        advance(); // skip '^'
-        auto right = parseUnary();  // right-associative (could use parseExponentiation here if you want true right-associativity)
+        advance();
+        auto right = parseUnary();
         left = std::make_shared<BinaryOpNode>("^", left, right);
     }
 
@@ -94,37 +107,55 @@ std::shared_ptr<ExpressionNode> Parser::parseUnary() {
 }
 
 std::shared_ptr<ExpressionNode> Parser::parsePrimary() {
-    Token token = advance();
+    if (matchType(TokenType::NUMBER)) {
+        return std::make_shared<NumberNode>(std::stod(tokens[position - 1].value));
+    }
 
-    if (token.type == TokenType::NUMBER) {
-        return std::make_shared<NumberNode>(std::stod(token.value));
-    } else if (token.type == TokenType::VARIABLE) {
-        return std::make_shared<VariableNode>(token.value);
-    } else if (token.type == TokenType::FUNCTION) {
-        if (!match("(")) {
-            throw std::runtime_error("Expected '(' after function name");
+    if (matchType(TokenType::IDENTIFIER)) {
+        std::string name = tokens[position - 1].value;
+        if (match("(")) {
+            auto arg = parse();
+            if (!matchType(TokenType::PARENTHESIS) || current().value != ")") {
+                throw std::runtime_error("Expected ')'");
+            }
+            advance(); // consume ')'
+            return std::make_shared<FunctionNode>(name, std::vector<std::shared_ptr<ExpressionNode>>{arg});
+        }
+        return std::make_shared<VariableNode>(name);
+    }
+    
+
+    if (matchType(TokenType::CONSTANT)) {
+        return std::make_shared<VariableNode>(tokens[position - 1].value);
+    }
+
+    // Handle function calls like sin(), cos(), etc.
+    
+
+        if (!matchType(TokenType::PARENTHESIS) || current().value != ")") {
+            throw std::runtime_error("Expected ')'");
         }
 
-        std::vector<std::shared_ptr<ExpressionNode>> args;
-        args.push_back(parse());
+        // Create a FunctionNode with a vector of arguments
+        return std::make_shared<FunctionNode>(funcName, std::vector<std::shared_ptr<ExpressionNode>>{arg});
+    }
 
-        if ((token.value == "pow" || token.value == "root") && match(",")) {
-            args.push_back(parse());
-        }
-
-        if (!match(")")) {
-            throw std::runtime_error("Expected ')' after function arguments");
-        }
-
-        return std::make_shared<FunctionNode>(token.value, args);
-    } else if (token.value == "(") {
+    if (match("(")) {
         auto expr = parse();
         if (!match(")")) {
-            throw std::runtime_error("Expected ')' after expression");
+            throw std::runtime_error("Expected ')'");
         }
         return expr;
     }
+     {
+        advance(); // consume '('
+        auto expr = parse();
+        if (!matchType(TokenType::PARENTHESIS) || current().value != ")") {
+            throw std::runtime_error("Expected ')'");
+        }
+        advance(); // consume ')'
+        return expr;
+    }
 
-    throw std::runtime_error("Unexpected token in primary: " + token.value);
-}
+    throw std::runtime_error("Unexpected token in primary: " + current().value);
 

@@ -1,117 +1,45 @@
+#include "Parser.h"
 #include "Expression.h"
-#include <stdexcept>
-#include <cmath>
+#include <memory>
+#include <string>
+#include <iostream>
 
-// ===== ABSTRACT BASE NODE =====
-double ExpressionNode::evaluate(const std::map<std::string, double>& variables) const {
-    // Abstract method, should not be called directly on base class
-    throw std::runtime_error("Abstract method 'evaluate' called");
-}
-
-// ===== NUMBER NODE =====
-double NumberNode::evaluate(const std::map<std::string, double>& variables) const {
-    return value;
-}
-
-// ===== BINARY OPERATOR NODE =====
-double BinaryOpNode::evaluate(const std::map<std::string, double>& variables) const {
-    double leftVal = left->evaluate(variables);
-    double rightVal = right->evaluate(variables);
-
-    if (op == "+") return leftVal + rightVal;
-    if (op == "-") return leftVal - rightVal;
-    if (op == "*") return leftVal * rightVal;
-    if (op == "/") {
-        if (rightVal == 0) throw std::runtime_error("Division by zero");
-        return leftVal / rightVal;
+std::shared_ptr<ExpressionNode> Parser::parseExpression() {
+    // For simplicity, let's assume we're parsing binary operations like "3 + 4"
+    auto left = parseTerm();  // Parse left-hand side expression
+    while (currentToken == "+" || currentToken == "-") {
+        std::string op = currentToken;
+        nextToken(); // Move to the next token
+        auto right = parseTerm(); // Parse right-hand side expression
+        left = std::make_shared<BinaryOpNode>(left, right, op);
     }
-    if (op == "^") return std::pow(leftVal, rightVal);
-
-    throw std::runtime_error("Unknown operator: " + op);
+    return left;
 }
 
-// ===== UNARY OPERATOR NODE =====
-double UnaryOperatorNode::evaluate(const std::map<std::string, double>& variables) const {
-    double val = operand->evaluate(variables);
-    if (op == "-") return -val;
-    
-    throw std::runtime_error("Unknown unary operator: " + op);
+std::shared_ptr<ExpressionNode> Parser::parseTerm() {
+    // Parse multiplication or division terms here (e.g., "3 * 4")
+    auto left = parseFactor();  // Assume parseFactor() is defined for parsing numbers/variables
+    while (currentToken == "*" || currentToken == "/") {
+        std::string op = currentToken;
+        nextToken();
+        auto right = parseFactor();
+        left = std::make_shared<BinaryOpNode>(left, right, op);
+    }
+    return left;
 }
 
-// ===== FUNCTION NODE =====
-double FunctionNode::evaluate(const std::map<std::string, double>& variables) const {
-    if (arguments.empty()) {
-        throw std::runtime_error("Function " + funcName + " called with no arguments");
+std::shared_ptr<ExpressionNode> Parser::parseFactor() {
+    // Implement parsing for factors (e.g., numbers, parentheses, etc.)
+    // This is a simplified example
+    if (currentToken == "(") {
+        nextToken();
+        auto expr = parseExpression();
+        if (currentToken == ")") {
+            nextToken();
+        }
+        return expr;
+    } else {
+        // Assume the token is a number or variable
+        return std::make_shared<UnaryOpNode>(parseFactor(), "-"); // Example unary minus
     }
-
-    // Single argument functions
-    if (arguments.size() == 1) {
-        double arg = arguments[0]->evaluate(variables);
-
-        // Trigonometric functions
-        if (funcName == "sin") return std::sin(arg);
-        if (funcName == "cos") return std::cos(arg);
-        if (funcName == "tan") return std::tan(arg);
-
-        // Inverse trigonometric functions
-        if (funcName == "asin" || funcName == "arcsin") return std::asin(arg);
-        if (funcName == "acos" || funcName == "arccos") return std::acos(arg);
-        if (funcName == "atan" || funcName == "arctan") return std::atan(arg);
-
-        // Logarithmic functions
-        if (funcName == "log") {
-            if (arg <= 0) throw std::runtime_error("Logarithm of non-positive number");
-            return std::log(arg);
-        }
-        if (funcName == "ln") {
-            if (arg <= 0) throw std::runtime_error("Natural logarithm of non-positive number");
-            return std::log(arg);
-        }
-        if (funcName == "log10") {
-            if (arg <= 0) throw std::runtime_error("Logarithm base 10 of non-positive number");
-            return std::log10(arg);
-        }
-        if (funcName == "log2") {
-            if (arg <= 0) throw std::runtime_error("Logarithm base 2 of non-positive number");
-            return std::log2(arg);
-        }
-
-        // Exponential and root functions
-        if (funcName == "exp") return std::exp(arg);
-        if (funcName == "sqrt") {
-            if (arg < 0) throw std::runtime_error("Square root of negative number");
-            return std::sqrt(arg);
-        }
-        if (funcName == "cbrt") return std::cbrt(arg);
-
-        // Factorial
-        if (funcName == "fact" || funcName == "factorial") {
-            if (arg < 0) throw std::runtime_error("Factorial of negative number");
-            if (arg != std::floor(arg)) throw std::runtime_error("Factorial of non-integer number");
-            double result = 1;
-            for (int i = 2; i <= static_cast<int>(arg); ++i) {
-                result *= i;
-            }
-            return result;
-        }
-    }
-
-    // Two argument functions
-    if (arguments.size() == 2) {
-        double arg1 = arguments[0]->evaluate(variables);
-        double arg2 = arguments[1]->evaluate(variables);
-
-        if (funcName == "pow") {
-            if (arg1 == 0 && arg2 < 0) throw std::runtime_error("Zero to negative power");
-            return std::pow(arg1, arg2);
-        }
-        if (funcName == "root") {
-            if (arg2 == 0) throw std::runtime_error("Root of degree zero");
-            if (arg1 < 0 && std::fmod(arg2, 2) == 0) throw std::runtime_error("Even root of negative number");
-            return std::pow(arg1, 1.0 / arg2);
-        }
-    }
-
-    throw std::runtime_error("Unknown function or invalid number of arguments: " + funcName);
 }
-

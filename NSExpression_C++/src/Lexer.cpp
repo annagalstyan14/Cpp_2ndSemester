@@ -2,6 +2,8 @@
 #include <cctype>
 #include <iostream>
 #include <cmath>
+#include <unordered_set>
+
 
 char Lexer::currentChar() const {
     if (position < input.length()) {
@@ -95,18 +97,33 @@ void Lexer::handleParanthesis() {
     advance();
 }
 
+bool Lexer::isConstant(const std::string& name) const {
+    static const std::unordered_set<std::string> constants = {
+        "pi", "e", "g", "Na", "k", "h", "q"
+    };
+    return constants.count(name) > 0;
+}
+
+
+
 void Lexer::handleFunction() {
     std::string func = "";
     while(isalpha(currentChar())) {
         func += currentChar();
         advance();
     }
+
     if (isFunction(func)) {
         tokens.push_back(Token(TokenType::FUNCTION, func));
+    } else if (isConstant(func)) {
+        tokens.push_back(Token(TokenType::CONSTANT, func)); // treat as constant if recognized
     } else {
-        tokens.push_back(Token(TokenType::IDENTIFIER, func)); // treat as variable/identifier if not a function
+        tokens.push_back(Token(TokenType::IDENTIFIER, func)); // treat as variable/identifier if not a function or constant
     }
 }
+
+
+
 
 void Lexer::handleVariable() {
     std::string var(1, currentChar());
