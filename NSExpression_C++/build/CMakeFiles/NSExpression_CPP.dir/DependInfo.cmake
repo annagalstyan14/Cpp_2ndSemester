@@ -9,7 +9,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/src/Evaluator.cpp" "CMakeFiles/NSExpression_CPP.dir/src/Evaluator.cpp.o" "gcc" "CMakeFiles/NSExpression_CPP.dir/src/Evaluator.cpp.o.d"
-  "/Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/src/Expression.cpp" "CMakeFiles/NSExpression_CPP.dir/src/Expression.cpp.o" "gcc" "CMakeFiles/NSExpression_CPP.dir/src/Expression.cpp.o.d"
+  "/Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/src/FunctionAnalyzer.cpp" "CMakeFiles/NSExpression_CPP.dir/src/FunctionAnalyzer.cpp.o" "gcc" "CMakeFiles/NSExpression_CPP.dir/src/FunctionAnalyzer.cpp.o.d"
   "/Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/src/Lexer.cpp" "CMakeFiles/NSExpression_CPP.dir/src/Lexer.cpp.o" "gcc" "CMakeFiles/NSExpression_CPP.dir/src/Lexer.cpp.o.d"
   "/Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/src/Parser.cpp" "CMakeFiles/NSExpression_CPP.dir/src/Parser.cpp.o" "gcc" "CMakeFiles/NSExpression_CPP.dir/src/Parser.cpp.o.d"
   "/Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/src/Token.cpp" "CMakeFiles/NSExpression_CPP.dir/src/Token.cpp.o" "gcc" "CMakeFiles/NSExpression_CPP.dir/src/Token.cpp.o.d"

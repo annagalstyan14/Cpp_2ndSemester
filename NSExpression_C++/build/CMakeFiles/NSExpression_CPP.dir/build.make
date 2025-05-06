@@ -86,24 +86,10 @@ CMakeFiles/NSExpression_CPP.dir/src/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/NSExpression_CPP.dir/src/main.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/src/main.cpp -o CMakeFiles/NSExpression_CPP.dir/src/main.cpp.s
 
-CMakeFiles/NSExpression_CPP.dir/src/Expression.cpp.o: CMakeFiles/NSExpression_CPP.dir/flags.make
-CMakeFiles/NSExpression_CPP.dir/src/Expression.cpp.o: /Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/src/Expression.cpp
-CMakeFiles/NSExpression_CPP.dir/src/Expression.cpp.o: CMakeFiles/NSExpression_CPP.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/NSExpression_CPP.dir/src/Expression.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/NSExpression_CPP.dir/src/Expression.cpp.o -MF CMakeFiles/NSExpression_CPP.dir/src/Expression.cpp.o.d -o CMakeFiles/NSExpression_CPP.dir/src/Expression.cpp.o -c /Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/src/Expression.cpp
-
-CMakeFiles/NSExpression_CPP.dir/src/Expression.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/NSExpression_CPP.dir/src/Expression.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/src/Expression.cpp > CMakeFiles/NSExpression_CPP.dir/src/Expression.cpp.i
-
-CMakeFiles/NSExpression_CPP.dir/src/Expression.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/NSExpression_CPP.dir/src/Expression.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/src/Expression.cpp -o CMakeFiles/NSExpression_CPP.dir/src/Expression.cpp.s
-
 CMakeFiles/NSExpression_CPP.dir/src/Evaluator.cpp.o: CMakeFiles/NSExpression_CPP.dir/flags.make
 CMakeFiles/NSExpression_CPP.dir/src/Evaluator.cpp.o: /Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/src/Evaluator.cpp
 CMakeFiles/NSExpression_CPP.dir/src/Evaluator.cpp.o: CMakeFiles/NSExpression_CPP.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/NSExpression_CPP.dir/src/Evaluator.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/NSExpression_CPP.dir/src/Evaluator.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/NSExpression_CPP.dir/src/Evaluator.cpp.o -MF CMakeFiles/NSExpression_CPP.dir/src/Evaluator.cpp.o.d -o CMakeFiles/NSExpression_CPP.dir/src/Evaluator.cpp.o -c /Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/src/Evaluator.cpp
 
 CMakeFiles/NSExpression_CPP.dir/src/Evaluator.cpp.i: cmake_force
@@ -117,7 +103,7 @@ CMakeFiles/NSExpression_CPP.dir/src/Evaluator.cpp.s: cmake_force
 CMakeFiles/NSExpression_CPP.dir/src/Lexer.cpp.o: CMakeFiles/NSExpression_CPP.dir/flags.make
 CMakeFiles/NSExpression_CPP.dir/src/Lexer.cpp.o: /Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/src/Lexer.cpp
 CMakeFiles/NSExpression_CPP.dir/src/Lexer.cpp.o: CMakeFiles/NSExpression_CPP.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/NSExpression_CPP.dir/src/Lexer.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/NSExpression_CPP.dir/src/Lexer.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/NSExpression_CPP.dir/src/Lexer.cpp.o -MF CMakeFiles/NSExpression_CPP.dir/src/Lexer.cpp.o.d -o CMakeFiles/NSExpression_CPP.dir/src/Lexer.cpp.o -c /Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/src/Lexer.cpp
 
 CMakeFiles/NSExpression_CPP.dir/src/Lexer.cpp.i: cmake_force
@@ -131,7 +117,7 @@ CMakeFiles/NSExpression_CPP.dir/src/Lexer.cpp.s: cmake_force
 CMakeFiles/NSExpression_CPP.dir/src/Parser.cpp.o: CMakeFiles/NSExpression_CPP.dir/flags.make
 CMakeFiles/NSExpression_CPP.dir/src/Parser.cpp.o: /Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/src/Parser.cpp
 CMakeFiles/NSExpression_CPP.dir/src/Parser.cpp.o: CMakeFiles/NSExpression_CPP.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/NSExpression_CPP.dir/src/Parser.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/NSExpression_CPP.dir/src/Parser.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/NSExpression_CPP.dir/src/Parser.cpp.o -MF CMakeFiles/NSExpression_CPP.dir/src/Parser.cpp.o.d -o CMakeFiles/NSExpression_CPP.dir/src/Parser.cpp.o -c /Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/src/Parser.cpp
 
 CMakeFiles/NSExpression_CPP.dir/src/Parser.cpp.i: cmake_force
@@ -145,7 +131,7 @@ CMakeFiles/NSExpression_CPP.dir/src/Parser.cpp.s: cmake_force
 CMakeFiles/NSExpression_CPP.dir/src/Token.cpp.o: CMakeFiles/NSExpression_CPP.dir/flags.make
 CMakeFiles/NSExpression_CPP.dir/src/Token.cpp.o: /Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/src/Token.cpp
 CMakeFiles/NSExpression_CPP.dir/src/Token.cpp.o: CMakeFiles/NSExpression_CPP.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/NSExpression_CPP.dir/src/Token.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/NSExpression_CPP.dir/src/Token.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/NSExpression_CPP.dir/src/Token.cpp.o -MF CMakeFiles/NSExpression_CPP.dir/src/Token.cpp.o.d -o CMakeFiles/NSExpression_CPP.dir/src/Token.cpp.o -c /Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/src/Token.cpp
 
 CMakeFiles/NSExpression_CPP.dir/src/Token.cpp.i: cmake_force
@@ -159,7 +145,7 @@ CMakeFiles/NSExpression_CPP.dir/src/Token.cpp.s: cmake_force
 CMakeFiles/NSExpression_CPP.dir/src/Utilities.cpp.o: CMakeFiles/NSExpression_CPP.dir/flags.make
 CMakeFiles/NSExpression_CPP.dir/src/Utilities.cpp.o: /Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/src/Utilities.cpp
 CMakeFiles/NSExpression_CPP.dir/src/Utilities.cpp.o: CMakeFiles/NSExpression_CPP.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/NSExpression_CPP.dir/src/Utilities.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/NSExpression_CPP.dir/src/Utilities.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/NSExpression_CPP.dir/src/Utilities.cpp.o -MF CMakeFiles/NSExpression_CPP.dir/src/Utilities.cpp.o.d -o CMakeFiles/NSExpression_CPP.dir/src/Utilities.cpp.o -c /Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/src/Utilities.cpp
 
 CMakeFiles/NSExpression_CPP.dir/src/Utilities.cpp.i: cmake_force
@@ -170,26 +156,40 @@ CMakeFiles/NSExpression_CPP.dir/src/Utilities.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/NSExpression_CPP.dir/src/Utilities.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/src/Utilities.cpp -o CMakeFiles/NSExpression_CPP.dir/src/Utilities.cpp.s
 
+CMakeFiles/NSExpression_CPP.dir/src/FunctionAnalyzer.cpp.o: CMakeFiles/NSExpression_CPP.dir/flags.make
+CMakeFiles/NSExpression_CPP.dir/src/FunctionAnalyzer.cpp.o: /Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/src/FunctionAnalyzer.cpp
+CMakeFiles/NSExpression_CPP.dir/src/FunctionAnalyzer.cpp.o: CMakeFiles/NSExpression_CPP.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/NSExpression_CPP.dir/src/FunctionAnalyzer.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/NSExpression_CPP.dir/src/FunctionAnalyzer.cpp.o -MF CMakeFiles/NSExpression_CPP.dir/src/FunctionAnalyzer.cpp.o.d -o CMakeFiles/NSExpression_CPP.dir/src/FunctionAnalyzer.cpp.o -c /Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/src/FunctionAnalyzer.cpp
+
+CMakeFiles/NSExpression_CPP.dir/src/FunctionAnalyzer.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/NSExpression_CPP.dir/src/FunctionAnalyzer.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/src/FunctionAnalyzer.cpp > CMakeFiles/NSExpression_CPP.dir/src/FunctionAnalyzer.cpp.i
+
+CMakeFiles/NSExpression_CPP.dir/src/FunctionAnalyzer.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/NSExpression_CPP.dir/src/FunctionAnalyzer.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/src/FunctionAnalyzer.cpp -o CMakeFiles/NSExpression_CPP.dir/src/FunctionAnalyzer.cpp.s
+
 # Object files for target NSExpression_CPP
 NSExpression_CPP_OBJECTS = \
 "CMakeFiles/NSExpression_CPP.dir/src/main.cpp.o" \
-"CMakeFiles/NSExpression_CPP.dir/src/Expression.cpp.o" \
 "CMakeFiles/NSExpression_CPP.dir/src/Evaluator.cpp.o" \
 "CMakeFiles/NSExpression_CPP.dir/src/Lexer.cpp.o" \
 "CMakeFiles/NSExpression_CPP.dir/src/Parser.cpp.o" \
 "CMakeFiles/NSExpression_CPP.dir/src/Token.cpp.o" \
-"CMakeFiles/NSExpression_CPP.dir/src/Utilities.cpp.o"
+"CMakeFiles/NSExpression_CPP.dir/src/Utilities.cpp.o" \
+"CMakeFiles/NSExpression_CPP.dir/src/FunctionAnalyzer.cpp.o"
 
 # External object files for target NSExpression_CPP
 NSExpression_CPP_EXTERNAL_OBJECTS =
 
 NSExpression_CPP: CMakeFiles/NSExpression_CPP.dir/src/main.cpp.o
-NSExpression_CPP: CMakeFiles/NSExpression_CPP.dir/src/Expression.cpp.o
 NSExpression_CPP: CMakeFiles/NSExpression_CPP.dir/src/Evaluator.cpp.o
 NSExpression_CPP: CMakeFiles/NSExpression_CPP.dir/src/Lexer.cpp.o
 NSExpression_CPP: CMakeFiles/NSExpression_CPP.dir/src/Parser.cpp.o
 NSExpression_CPP: CMakeFiles/NSExpression_CPP.dir/src/Token.cpp.o
 NSExpression_CPP: CMakeFiles/NSExpression_CPP.dir/src/Utilities.cpp.o
+NSExpression_CPP: CMakeFiles/NSExpression_CPP.dir/src/FunctionAnalyzer.cpp.o
 NSExpression_CPP: CMakeFiles/NSExpression_CPP.dir/build.make
 NSExpression_CPP: CMakeFiles/NSExpression_CPP.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Linking CXX executable NSExpression_CPP"
