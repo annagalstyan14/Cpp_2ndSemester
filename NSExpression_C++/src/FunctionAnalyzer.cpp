@@ -6,29 +6,29 @@
 
 std::pair<double, double> FunctionAnalyzer::getRestrictedDomain(const std::shared_ptr<ExpressionNode>& node) const {
     if (auto func = std::dynamic_pointer_cast<FunctionNode>(node)) {
-        if (func->name == "sqrt" || func->name == "cbrt") {
+        if (func->getName() == "sqrt" || func->getName() == "cbrt") {
             return { 0.0, std::numeric_limits<double>::infinity() }; // sqrt(x) requires x >= 0
         }
-        if (func->name == "log" || func->name == "ln" || func->name == "log10" || func->name == "log2") {
+        if (func->getName() == "log" || func->getName() == "ln" || func->getName() == "log10" || func->getName() == "log2") {
             return { 1e-10, std::numeric_limits<double>::infinity() }; // log(x) requires x > 0
         }
-        if (func->name == "tan") {
+        if (func->getName() == "tan") {
             // tan(x) is undefined at x = π/2 + kπ; approximate with a safe range
             return { -1.5, 1.5 }; // Restrict to avoid singularities
         }
-        if (func->args.size() == 1) {
-            return getRestrictedDomain(func->args[0]); // Recurse into arguments
+        if (func->getArgs().size() == 1) {
+            return getRestrictedDomain(func->getArgs()[0]); // Recurse into arguments
         }
     } else if (auto bin = std::dynamic_pointer_cast<BinaryOpNode>(node)) {
-        auto leftDomain = getRestrictedDomain(bin->left);
-        auto rightDomain = getRestrictedDomain(bin->right);
-        if (bin->op == "/") {
+        auto leftDomain = getRestrictedDomain(bin->getLeft());
+        auto rightDomain = getRestrictedDomain(bin->getRight());
+        if (bin->getOp() == "/") {
             // For division, exclude points where denominator is zero
             std::unordered_map<std::string, double> vars;
             for (double x = PLOT_MIN; x <= PLOT_MAX; x += PLOT_STEP) {
                 vars["x"] = x;
                 try {
-                    double denom = bin->right->evaluate(vars);
+                    double denom = bin->getRight()->evaluate(vars);
                     if (std::abs(denom) < EPSILON) {
                         return { PLOT_MIN, x - EPSILON }; // Restrict domain before zero
                     }
@@ -40,7 +40,7 @@ std::pair<double, double> FunctionAnalyzer::getRestrictedDomain(const std::share
         // Intersect domains
         return { std::max(leftDomain.first, rightDomain.first), std::min(leftDomain.second, rightDomain.second) };
     } else if (auto unary = std::dynamic_pointer_cast<UnaryOpNode>(node)) {
-        return getRestrictedDomain(unary->operand);
+        return getRestrictedDomain(unary->getOperand());
     }
     return { -std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity() };
 }
@@ -150,7 +150,7 @@ void FunctionAnalyzer::plotAscii(std::ostream& os, int width, int height) const 
     double minX = std::max(PLOT_MIN, domain.first);
     double maxX = std::min(PLOT_MAX, domain.second);
     auto range = getRange();
-    double minY = rangeFIRST;
+    double minY = range.first;
     double maxY = range.second;
 
     // Handle case where range is invalid or infinite

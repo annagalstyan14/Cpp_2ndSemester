@@ -17,17 +17,15 @@ set(SOURCES
     src/Utilities.cpp
     src/FunctionAnalyzer.cpp
 )
+if(UNIX AND NOT APPLE)
+    target_link_libraries(${PROJECT_NAME} PRIVATE m)
+endif()
 
 # Include directories
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
 # Add the executable
 add_executable(${PROJECT_NAME} ${SOURCES})
-
-# Link math library (for std::sin, std::pow, etc.)
-if(UNIX AND NOT APPLE)
-    target_link_libraries(${PROJECT_NAME} PRIVATE m)
-endif()
 
 # Set output directories
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)

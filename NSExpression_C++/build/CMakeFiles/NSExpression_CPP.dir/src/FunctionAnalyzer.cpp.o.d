@@ -1,6 +1,6 @@
-CMakeFiles/NSExpression_CPP.dir/src/Parser.cpp.o: \
-  /Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/src/Parser.cpp \
-  /Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/include/Parser.h \
+CMakeFiles/NSExpression_CPP.dir/src/FunctionAnalyzer.cpp.o: \
+  /Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/src/FunctionAnalyzer.cpp \
+  /Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/include/FunctionAnalyzer.h \
   /Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/include/Expression.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/memory \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__config \
@@ -763,7 +763,6 @@ CMakeFiles/NSExpression_CPP.dir/src/Parser.cpp.o: \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_types/_nl_item.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__locale_dir/locale_base_api/bsd_locale_defaults.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/cstdarg \
-  /Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/include/Token.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/iostream \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/istream \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__ostream/basic_ostream.h \
@@ -795,4 +794,5 @@ CMakeFiles/NSExpression_CPP.dir/src/Parser.cpp.o: \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/stack \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__fwd/stack.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/print \
-  /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/unistd.h
+  /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/unistd.h \
+  /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/iomanip

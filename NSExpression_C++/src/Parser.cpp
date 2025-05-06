@@ -1,121 +1,127 @@
 #include "Parser.h"
 #include <stdexcept>
-#include <cmath>
 
-Parser::Parser(const std::vector<Token>& tokens, const std::unordered_map<std::string, double>& variables)
-    : tokens(tokens), position(0), variables(variables) {}
+Parser::Parser(const std::vector<Token>& tokens, std::unordered_map<std::string, double>& variables)
+    : tokens(tokens), pos(0), variables(variables) {}
 
-Token Parser::peek() const {
-    return (position < tokens.size()) ? tokens[position] : Token(TokenType::EOF_TOKEN, "");
+Token Parser::currentToken() const {
+    if (pos < tokens.size()) {
+        return tokens[pos];
+    }
+    return Token{TokenType::EOF_TOKEN, ""};
 }
 
-Token Parser::advance() {
-    return (position < tokens.size()) ? tokens[position++] : Token(TokenType::EOF_TOKEN, "");
+void Parser::advance() {
+    ++pos;
 }
 
-Token Parser::current() const {
-    return peek();
-}
-
-bool Parser::match(const std::string& value) {
-    if (peek().value == value) {
+std::shared_ptr<ExpressionNode> Parser::parseExpression() {
+    auto left = parseTerm();
+    while (pos < tokens.size() && currentToken().type == TokenType::OPERATOR) {
+        std::string op = currentToken().value;
+        if (op != "+" && op != "-") break;
         advance();
-        return true;
+        auto right = parseTerm();
+        left = std::make_shared<BinaryOpNode>(left, right, op);
     }
-    return false;
+    return left;
 }
 
-bool Parser::matchType(TokenType type) {
-    if (peek().type == type) {
+std::shared_ptr<ExpressionNode> Parser::parseTerm() {
+    auto left = parseFactor();
+    while (pos < tokens.size()) {
+        if (currentToken().type == TokenType::OPERATOR) {
+            std::string op = currentToken().value;
+            if (op != "*" && op != "/" && op != "^") break;
+            advance();
+            auto right = parseFactor();
+            left = std::make_shared<BinaryOpNode>(left, right, op);
+        } else if (currentToken().type == TokenType::VARIABLE ||
+                   (currentToken().type == TokenType::PARENTHESIS && currentToken().value == "(") ||
+                   currentToken().type == TokenType::IDENTIFIER ||
+                   currentToken().type == TokenType::CONSTANT ||
+                   currentToken().type == TokenType::FUNCTION) {
+            // Implicit multiplication, e.g., 2x or 2sin(x)
+            auto right = parseFactor();
+            left = std::make_shared<BinaryOpNode>(left, right, "*");
+        } else {
+            break;
+        }
+    }
+    return left;
+}
+
+std::shared_ptr<ExpressionNode> Parser::parseFactor() {
+    if (pos < tokens.size() && currentToken().type == TokenType::OPERATOR && currentToken().value == "-") {
         advance();
-        return true;
-    }
-    return false;
-}
-
-bool Parser::check(TokenType type) const {
-    return peek().type == type;
-}
-
-std::shared_ptr<ExpressionNode> Parser::parse() {
-    auto expr = parseEquality();
-    if (position < tokens.size() && peek().type != TokenType::EOF_TOKEN) {
-        throw std::runtime_error("Unexpected token after expression: " + current().value);
-    }
-    return expr;
-}
-
-std::shared_ptr<ExpressionNode> Parser::parseEquality() {
-    auto left = parseAdditive();
-    if (match("=")) {
-        auto right = parseEquality();
-        return std::make_shared<EquationNode>(left, right);
-    }
-    return left;
-}
-
-std::shared_ptr<ExpressionNode> Parser::parseAdditive() {
-    auto left = parseMultiplicative();
-    while (current().value == "+" || current().value == "-") {
-        std::string op = advance().value;
-        auto right = parseMultiplicative();
-        left = std::make_shared<BinaryOpNode>(left, right, op);
-    }
-    return left;
-}
-
-std::shared_ptr<ExpressionNode> Parser::parseMultiplicative() {
-    auto left = parseExponentiation();
-    while (current().value == "*" || current().value == "/") {
-        std::string op = advance().value;
-        auto right = parseExponentiation();
-        left = std::make_shared<BinaryOpNode>(left, right, op);
-    }
-    return left;
-}
-
-std::shared_ptr<ExpressionNode> Parser::parseExponentiation() {
-    auto left = parseUnary();
-    while (current().value == "^") {
-        std::string op = advance().value;
-        auto right = parseUnary();
-        left = std::make_shared<BinaryOpNode>(left, right, op);
-    }
-    return left;
-}
-
-std::shared_ptr<ExpressionNode> Parser::parseUnary() {
-    if (match("-")) {
-        auto operand = parseUnary();
+        auto operand = parseFactor();
         return std::make_shared<UnaryOpNode>(operand, "-");
     }
     return parsePrimary();
 }
 
 std::shared_ptr<ExpressionNode> Parser::parsePrimary() {
-    if (matchType(TokenType::NUMBER)) {
-        return std::make_shared<NumberNode>(std::stod(tokens[position - 1].value));
+    if (pos >= tokens.size()) {
+        throw std::runtime_error("Unexpected end of input");
     }
-    if (matchType(TokenType::IDENTIFIER) || matchType(TokenType::FUNCTION)) {
-        std::string name = tokens[position - 1].value;
-        if (match("(")) {
-            auto arg = parse();
-            if (!match(")")) {
-                throw std::runtime_error("Expected ')' after function argument");
+
+    Token token = currentToken();
+    advance();
+
+    if (token.type == TokenType::NUMBER) {
+        try {
+            double value = std::stod(token.value);
+            return std::make_shared<NumberNode>(value);
+        } catch (const std::exception&) {
+            throw std::runtime_error("Invalid number: " + token.value);
+        }
+    } else if (token.type == TokenType::VARIABLE || token.type == TokenType::IDENTIFIER || token.type == TokenType::CONSTANT) {
+        return std::make_shared<VariableNode>(token.value);
+    } else if (token.type == TokenType::FUNCTION) {
+        if (pos < tokens.size() && currentToken().type == TokenType::PARENTHESIS && currentToken().value == "(") {
+            // Function call, e.g., sin(x)
+            advance(); // Consume '('
+            std::vector<std::shared_ptr<ExpressionNode>> args;
+            if (pos < tokens.size() && !(currentToken().type == TokenType::PARENTHESIS && currentToken().value == ")")) {
+                args.push_back(parseExpression());
             }
-            return std::make_shared<FunctionNode>(name, std::vector<std::shared_ptr<ExpressionNode>>{arg});
+            if (pos >= tokens.size() || !(currentToken().type == TokenType::PARENTHESIS && currentToken().value == ")")) {
+                throw std::runtime_error("Expected closing parenthesis in function call");
+            }
+            advance(); // Consume ')'
+            return std::make_shared<FunctionNode>(token.value, args);
         }
-        return std::make_shared<VariableNode>(name);
-    }
-    if (matchType(TokenType::CONSTANT)) {
-        return std::make_shared<VariableNode>(tokens[position - 1].value);
-    }
-    if (match("(")) {
-        auto expr = parse();
-        if (!match(")")) {
-            throw std::runtime_error("Expected ')' after expression");
+        throw std::runtime_error("Expected parenthesis after function: " + token.value);
+    } else if (token.type == TokenType::PARENTHESIS && token.value == "(") {
+        auto expr = parseExpression();
+        if (pos >= tokens.size() || !(currentToken().type == TokenType::PARENTHESIS && currentToken().value == ")")) {
+            throw std::runtime_error("Expected closing parenthesis");
         }
+        advance(); // Consume ')'
         return expr;
+    } else {
+        throw std::runtime_error("Unexpected token: " + token.value);
     }
-    throw std::runtime_error("Unexpected token: " + current().value);
+}
+
+std::shared_ptr<ExpressionNode> Parser::parse() {
+    if (tokens.empty()) {
+        throw std::runtime_error("Empty input");
+    }
+
+    auto expr = parseExpression();
+
+    // Check for equation (e.g., 2x + 3 = 7)
+    if (pos < tokens.size() && currentToken().type == TokenType::EQUALS) {
+        advance();
+        auto right = parseExpression();
+        expr = std::make_shared<EquationNode>(expr, right);
+    }
+
+    // Ensure no unexpected tokens remain
+    if (pos < tokens.size() && currentToken().type != TokenType::EOF_TOKEN) {
+        throw std::runtime_error("Unexpected token after expression: " + currentToken().value);
+    }
+
+    return expr;
 }

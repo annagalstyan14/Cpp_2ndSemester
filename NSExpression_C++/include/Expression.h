@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <cmath>
 #include <stdexcept>
+#include <vector>
 
 class ExpressionNode {
 public:
@@ -118,6 +119,8 @@ public:
         if (name == "cbrt") return std::cbrt(arg);
         throw std::runtime_error("Unknown function: " + name);
     }
+    std::string getName() const { return name; }
+    const std::vector<std::shared_ptr<ExpressionNode>>& getArgs() const { return args; }
 };
 
 class EquationNode : public ExpressionNode {
