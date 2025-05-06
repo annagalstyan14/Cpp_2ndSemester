@@ -8,6 +8,7 @@
 #include <sstream>
 #include <algorithm>
 #include <cctype>
+#include <cmath>
 
 int main() {
     std::unordered_map<std::string, double> variables;
@@ -29,7 +30,6 @@ int main() {
         }
 
         try {
-            // Trim whitespace
             auto trim = [](std::string& s) {
                 s.erase(0, s.find_first_not_of(" \t"));
                 s.erase(s.find_last_not_of(" \t") + 1);
@@ -44,7 +44,6 @@ int main() {
             bool isAnalyze = false, isPlot = false;
             std::string expression;
 
-            // Case-insensitive starts_with
             auto starts_with = [](const std::string& str, const std::string& prefix) {
                 if (str.length() < prefix.length()) return false;
                 for (size_t i = 0; i < prefix.length(); ++i) {
@@ -53,7 +52,6 @@ int main() {
                 return true;
             };
 
-            // Debug: Show raw and trimmed input with ASCII values
             std::cout << "Debug: Raw input: '" << input << "'\n";
             std::cout << "Debug: Raw input ASCII: ";
             for (char c : input) {
@@ -62,7 +60,6 @@ int main() {
             std::cout << "\n";
             std::cout << "Debug: Trimmed input: '" << trimmed_input << "'\n";
 
-            // Check for commands
             if (starts_with(trimmed_input, "analyze ") && trimmed_input.length() > 7) {
                 isAnalyze = true;
                 expression = trimmed_input.substr(7);
@@ -77,7 +74,6 @@ int main() {
                 expression = trimmed_input;
             }
 
-            // Debug: Show command and expression
             std::cout << "Debug: Command: " << (isAnalyze ? "analyze" : isPlot ? "plot" : "none") << "\n";
             std::cout << "Debug: Expression: '" << expression << "'\n";
 
@@ -118,8 +114,32 @@ int main() {
                 if (xIntercepts.empty()) {
                     std::cout << "none";
                 } else {
-                    for (double x : xIntercepts) {
-                        std::cout << x << " ";
+                    bool isSin = std::dynamic_pointer_cast<FunctionNode>(expr) &&
+                                 std::dynamic_pointer_cast<FunctionNode>(expr)->getName() == "sin";
+                    for (const auto& intercept : xIntercepts) {
+                        double x = intercept.first;
+                        if (isSin) {
+                            double k = x / 3.141592653589793;
+                            int k_int = std::round(k);
+                            if (std::abs(k - k_int) < 1e-6) {
+                                if (k_int == 0) {
+                                    std::cout << "(0, 0) ";
+                                } else if (k_int == 1) {
+                                    std::cout << "(pi, 0) ";
+                                } else if (k_int == -1) {
+                                    std::cout << "(-pi, 0) ";
+                                } else {
+                                    std::cout << "(" << k_int << "pi, 0) ";
+                                }
+                            } else {
+                                std::cout << "(" << x << ", 0) ";
+                            }
+                        } else {
+                            std::cout << "(" << x << ", " << intercept.second << ") ";
+                        }
+                    }
+                    if (isSin) {
+                        std::cout << "(and multiples of pi)";
                     }
                 }
                 std::cout << "\n";
