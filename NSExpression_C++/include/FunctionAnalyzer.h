@@ -15,14 +15,14 @@ private:
     static constexpr double PLOT_MAX = 10.0;
 public:
     FunctionAnalyzer(std::shared_ptr<ExpressionNode> expr) : expr(expr) {}
-    std::pair<double, double> getDomain() const;
-    std::pair<double, double> getRestrictedDomain(const std::shared_ptr<ExpressionNode>& node) const;
+    std::vector<std::pair<double, double>> getDomain() const;
+    std::vector<std::pair<double, double>> getRestrictedDomain(const std::shared_ptr<ExpressionNode>& node) const;
     std::pair<double, double> getRange() const;
     bool isOdd() const;
     bool isEven() const;
     bool isSymmetric() const;
-    std::vector<double> getXAxisIntercepts() const;
-    double getYAxisIntercept() const;
+    std::vector<std::pair<double, double>> getXAxisIntercepts() const;
+    std::pair<double, double> getYAxisIntercept() const;
     void plotAscii(std::ostream& os, int width = 80, int height = 20) const;
 };
 
