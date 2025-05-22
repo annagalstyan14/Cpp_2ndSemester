@@ -6,6 +6,8 @@
 #include <ncurses.h>
 #include <fstream>
 
+FunctionAnalyzer::FunctionAnalyzer(const std::shared_ptr<ExpressionNode>& expr) : expr(expr) {}
+
 std::vector<std::pair<double, double>> FunctionAnalyzer::getRestrictedDomain(const std::shared_ptr<ExpressionNode>& node) const {
     // [Unchanged code from your original FunctionAnalyzer.cpp]
     if (auto func = std::dynamic_pointer_cast<FunctionNode>(node)) {

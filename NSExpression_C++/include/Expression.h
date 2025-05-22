@@ -197,6 +197,8 @@ public:
 
         return -constant / coeff; // Solution: x = -constant / coeff
     }
+
+    std::vector<double> solveNonLinear(const std::string& var, const std::unordered_map<std::string, double>& variables) const;
 };
 
 #endif

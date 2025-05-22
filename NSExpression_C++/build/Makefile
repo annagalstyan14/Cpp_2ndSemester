@@ -153,6 +153,30 @@ src/Evaluator.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/NSExpression_CPP.dir/build.make CMakeFiles/NSExpression_CPP.dir/src/Evaluator.cpp.s
 .PHONY : src/Evaluator.cpp.s
 
+src/Expression.o: src/Expression.cpp.o
+.PHONY : src/Expression.o
+
+# target to build an object file
+src/Expression.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/NSExpression_CPP.dir/build.make CMakeFiles/NSExpression_CPP.dir/src/Expression.cpp.o
+.PHONY : src/Expression.cpp.o
+
+src/Expression.i: src/Expression.cpp.i
+.PHONY : src/Expression.i
+
+# target to preprocess a source file
+src/Expression.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/NSExpression_CPP.dir/build.make CMakeFiles/NSExpression_CPP.dir/src/Expression.cpp.i
+.PHONY : src/Expression.cpp.i
+
+src/Expression.s: src/Expression.cpp.s
+.PHONY : src/Expression.s
+
+# target to generate assembly for a file
+src/Expression.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/NSExpression_CPP.dir/build.make CMakeFiles/NSExpression_CPP.dir/src/Expression.cpp.s
+.PHONY : src/Expression.cpp.s
+
 src/FunctionAnalyzer.o: src/FunctionAnalyzer.cpp.o
 .PHONY : src/FunctionAnalyzer.o
 
@@ -309,6 +333,9 @@ help:
 	@echo "... src/Evaluator.o"
 	@echo "... src/Evaluator.i"
 	@echo "... src/Evaluator.s"
+	@echo "... src/Expression.o"
+	@echo "... src/Expression.i"
+	@echo "... src/Expression.s"
 	@echo "... src/FunctionAnalyzer.o"
 	@echo "... src/FunctionAnalyzer.i"
 	@echo "... src/FunctionAnalyzer.s"

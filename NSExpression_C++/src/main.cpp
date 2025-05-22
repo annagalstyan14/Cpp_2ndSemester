@@ -25,7 +25,10 @@ int main() {
         std::cout << "> ";
         std::string input;
         std::getline(std::cin, input);
-
+        if (std::cin.eof() || std::cin.fail()) {
+            std::cout << "\nInput stream closed. Exiting.\n";
+            break;
+        }
         if (input == "quit") {
             break;
         }
@@ -216,6 +219,10 @@ int main() {
             } else if (isPlot) {
                 FunctionAnalyzer analyzer(expr);
                 analyzer.plotNcurses(filename);
+                // Clear any leftover input after ncurses
+                std::cin.clear();
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                continue; // Go to next prompt
             } else if (expr->isEquation()) {
                 auto equation = std::dynamic_pointer_cast<EquationNode>(expr);
                 auto solutions = equation->solveNonLinear("x", variables);
