@@ -44,6 +44,7 @@ int main() {
 
             bool isAnalyze = false, isPlot = false;
             std::string expression;
+            std::string filename;
 
             auto starts_with = [](const std::string& str, const std::string& prefix) {
                 if (str.length() < prefix.length()) return false;
@@ -61,6 +62,13 @@ int main() {
                 isPlot = true;
                 expression = trimmed_input.substr(5);
                 trim(expression);
+                size_t to_pos = expression.find(" to ");
+                if (to_pos != std::string::npos) {
+                    filename = expression.substr(to_pos + 4);
+                    trim(filename);
+                    expression = expression.substr(0, to_pos);
+                    trim(expression);
+                }
             } else if (trimmed_input == "analyze" || trimmed_input == "plot") {
                 throw std::runtime_error("Command '" + trimmed_input + "' requires an expression");
             } else {
@@ -89,7 +97,7 @@ int main() {
                             std::cout << "(";
                             if (std::isinf(-domains[i].first)) {
                                 std::cout << "-inf";
-                            } else if (std::abs(domains[i].first) <= 1e-6) { // Adjusted comparison
+                            } else if (std::abs(domains[i].first) <= 1e-6) {
                                 std::cout << "0";
                             } else {
                                 std::cout << std::fixed << std::setprecision(2) << domains[i].first;
@@ -97,7 +105,7 @@ int main() {
                             std::cout << ", ";
                             if (std::isinf(domains[i].second)) {
                                 std::cout << "inf";
-                            } else if (std::abs(domains[i].second) <= 1e-6) { // Adjusted comparison
+                            } else if (std::abs(domains[i].second) <= 1e-6) {
                                 std::cout << "0";
                             } else {
                                 std::cout << std::fixed << std::setprecision(2) << domains[i].second;
@@ -207,11 +215,20 @@ int main() {
                 }
             } else if (isPlot) {
                 FunctionAnalyzer analyzer(expr);
-                analyzer.plotAscii(std::cout, 50, 20);
+                analyzer.plotNcurses(filename);
             } else if (expr->isEquation()) {
                 auto equation = std::dynamic_pointer_cast<EquationNode>(expr);
-                double solution = equation->solveFor("x", variables);
-                std::cout << "Solution for x: " << std::fixed << std::setprecision(2) << solution << "\n";
+                auto solutions = equation->solveNonLinear("x", variables);
+                if (solutions.empty()) {
+                    std::cout << "No real solutions found\n";
+                } else {
+                    std::cout << "Solutions for x: ";
+                    for (size_t i = 0; i < solutions.size(); ++i) {
+                        std::cout << std::fixed << std::setprecision(2) << solutions[i];
+                        if (i < solutions.size() - 1) std::cout << ", ";
+                    }
+                    std::cout << "\n";
+                }
             } else {
                 Evaluator evaluator;
                 double result = evaluator.evaluate(expr, variables);

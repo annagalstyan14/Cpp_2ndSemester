@@ -3,8 +3,11 @@
 #include <limits>
 #include <algorithm>
 #include <iomanip>
+#include <ncurses.h>
+#include <fstream>
 
 std::vector<std::pair<double, double>> FunctionAnalyzer::getRestrictedDomain(const std::shared_ptr<ExpressionNode>& node) const {
+    // [Unchanged code from your original FunctionAnalyzer.cpp]
     if (auto func = std::dynamic_pointer_cast<FunctionNode>(node)) {
         if (func->getName() == "sqrt" || func->getName() == "cbrt") {
             return { {0.0, std::numeric_limits<double>::infinity()} };
@@ -53,7 +56,6 @@ std::vector<std::pair<double, double>> FunctionAnalyzer::getRestrictedDomain(con
                     }
                 }
             }
-            // General division: exclude denominator zeros numerically
             std::vector<std::pair<double, double>> intervals;
             double last = PLOT_MIN;
             std::unordered_map<std::string, double> vars;
@@ -86,7 +88,6 @@ std::vector<std::pair<double, double>> FunctionAnalyzer::getRestrictedDomain(con
             }
             return intervals;
         }
-        // Intersect domains
         std::vector<std::pair<double, double>> result;
         for (const auto& l : leftDomain) {
             for (const auto& r : rightDomain) {
@@ -111,6 +112,7 @@ std::vector<std::pair<double, double>> FunctionAnalyzer::getDomain() const {
 }
 
 std::pair<double, double> FunctionAnalyzer::getRange() const {
+    // [Unchanged code]
     auto func = std::dynamic_pointer_cast<FunctionNode>(expr);
     if (func) {
         if (func->getName() == "sin" || func->getName() == "cos") {
@@ -166,7 +168,7 @@ std::pair<double, double> FunctionAnalyzer::getRange() const {
         double minX = domain.first;
         double maxX = domain.second;
         for (double x = minX; x <= maxX; x += PLOT_STEP) {
-            if (std::abs(x) < EPSILON) continue; // Avoid division by zero
+            if (std::abs(x) < EPSILON) continue;
             vars["x"] = x;
             try {
                 double y = expr->evaluate(vars);
@@ -186,6 +188,7 @@ std::pair<double, double> FunctionAnalyzer::getRange() const {
 }
 
 bool FunctionAnalyzer::isOdd() const {
+    // [Unchanged code]
     auto func = std::dynamic_pointer_cast<FunctionNode>(expr);
     if (func) {
         if (func->getName() == "sin" || func->getName() == "tan" || func->getName() == "cbrt" ||
@@ -202,13 +205,13 @@ bool FunctionAnalyzer::isOdd() const {
         if (bin->getOp() == "^") {
             if (auto rightConst = std::dynamic_pointer_cast<NumberNode>(bin->getRight())) {
                 int power = static_cast<int>(rightConst->getValue());
-                return power % 2 == 1; // x^3, x^5 are odd
+                return power % 2 == 1;
             }
         } else if (bin->getOp() == "/") {
             if (auto leftConst = std::dynamic_pointer_cast<NumberNode>(bin->getLeft())) {
                 if (auto rightVar = std::dynamic_pointer_cast<VariableNode>(bin->getRight())) {
                     if (std::abs(leftConst->getValue() - 1.0) < EPSILON && rightVar->getName() == "x") {
-                        return true; // 1/x is odd
+                        return true;
                     }
                 }
             }
@@ -258,6 +261,7 @@ bool FunctionAnalyzer::isOdd() const {
 }
 
 bool FunctionAnalyzer::isEven() const {
+    // [Unchanged code]
     auto func = std::dynamic_pointer_cast<FunctionNode>(expr);
     if (func) {
         if (func->getName() == "cos") {
@@ -273,13 +277,13 @@ bool FunctionAnalyzer::isEven() const {
         if (bin->getOp() == "^") {
             if (auto rightConst = std::dynamic_pointer_cast<NumberNode>(bin->getRight())) {
                 int power = static_cast<int>(rightConst->getValue());
-                return power % 2 == 0; // x^2, x^4 are even
+                return power % 2 == 0;
             }
         } else if (bin->getOp() == "/") {
             if (auto leftConst = std::dynamic_pointer_cast<NumberNode>(bin->getLeft())) {
                 if (auto rightVar = std::dynamic_pointer_cast<VariableNode>(bin->getRight())) {
                     if (std::abs(leftConst->getValue() - 1.0) < EPSILON && rightVar->getName() == "x") {
-                        return false; // 1/x is not even
+                        return false;
                     }
                 }
             }
@@ -333,12 +337,13 @@ bool FunctionAnalyzer::isSymmetric() const {
 }
 
 std::vector<std::pair<double, double>> FunctionAnalyzer::getXAxisIntercepts() const {
+    // [Unchanged code]
     auto func = std::dynamic_pointer_cast<FunctionNode>(expr);
     if (func) {
         if (func->getName() == "sin") {
             std::vector<std::pair<double, double>> intercepts;
             const double pi = 3.141592653589793;
-            const int n = 3; // -3π to 3π
+            const int n = 3;
             for (int k = -n; k <= n; ++k) {
                 intercepts.emplace_back(k * pi, 0.0);
             }
@@ -349,7 +354,7 @@ std::vector<std::pair<double, double>> FunctionAnalyzer::getXAxisIntercepts() co
         if (func->getName() == "cos") {
             std::vector<std::pair<double, double>> intercepts;
             const double pi = 3.141592653589793;
-            const int n = 3; // -π/2 + kπ
+            const int n = 3;
             for (int k = -n; k <= n; ++k) {
                 intercepts.emplace_back(pi / 2 + k * pi, 0.0);
             }
@@ -360,7 +365,7 @@ std::vector<std::pair<double, double>> FunctionAnalyzer::getXAxisIntercepts() co
         if (func->getName() == "tan") {
             std::vector<std::pair<double, double>> intercepts;
             const double pi = 3.141592653589793;
-            const int n = 3; // kπ
+            const int n = 3;
             for (int k = -n; k <= n; ++k) {
                 intercepts.emplace_back(k * pi, 0.0);
             }
@@ -381,18 +386,18 @@ std::vector<std::pair<double, double>> FunctionAnalyzer::getXAxisIntercepts() co
             return {};
         }
         if (func->getName() == "log" || func->getName() == "ln" || func->getName() == "log10" || func->getName() == "log2") {
-            return { {1.0, 0.0} }; // log(1) = 0
+            return { {1.0, 0.0} };
         }
     } else if (auto bin = std::dynamic_pointer_cast<BinaryOpNode>(expr)) {
         if (bin->getOp() == "^") {
             if (auto rightConst = std::dynamic_pointer_cast<NumberNode>(bin->getRight())) {
-                return { {0.0, 0.0} }; // x^n = 0 at x = 0
+                return { {0.0, 0.0} };
             }
         } else if (bin->getOp() == "/") {
             if (auto leftConst = std::dynamic_pointer_cast<NumberNode>(bin->getLeft())) {
                 if (auto rightVar = std::dynamic_pointer_cast<VariableNode>(bin->getRight())) {
                     if (std::abs(leftConst->getValue() - 1.0) < EPSILON && rightVar->getName() == "x") {
-                        return {}; // 1/x has no x-intercepts
+                        return {};
                     }
                 }
             }
@@ -434,12 +439,13 @@ std::vector<std::pair<double, double>> FunctionAnalyzer::getXAxisIntercepts() co
 }
 
 std::pair<double, double> FunctionAnalyzer::getYAxisIntercept() const {
+    // [Unchanged code]
     auto bin = std::dynamic_pointer_cast<BinaryOpNode>(expr);
     if (bin && bin->getOp() == "/") {
         if (auto leftConst = std::dynamic_pointer_cast<NumberNode>(bin->getLeft())) {
             if (auto rightVar = std::dynamic_pointer_cast<VariableNode>(bin->getRight())) {
                 if (std::abs(leftConst->getValue() - 1.0) < EPSILON && rightVar->getName() == "x") {
-                    return { 0.0, std::numeric_limits<double>::quiet_NaN() }; // 1/x undefined at x=0
+                    return { 0.0, std::numeric_limits<double>::quiet_NaN() };
                 }
             }
         }
@@ -466,7 +472,17 @@ std::pair<double, double> FunctionAnalyzer::getYAxisIntercept() const {
     }
 }
 
-void FunctionAnalyzer::plotAscii(std::ostream& os, int width, int height) const {
+void FunctionAnalyzer::plotNcurses(const std::string& filename) const {
+    initscr();
+    cbreak();
+    noecho();
+    keypad(stdscr, TRUE);
+
+    int max_y, max_x;
+    getmaxyx(stdscr, max_y, max_x);
+    int width = max_x - 2;
+    int height = max_y - 2;
+
     auto domains = getDomain();
     double minX = std::numeric_limits<double>::infinity();
     double maxX = -std::numeric_limits<double>::infinity();
@@ -477,117 +493,151 @@ void FunctionAnalyzer::plotAscii(std::ostream& os, int width, int height) const 
     minX = std::max(PLOT_MIN, minX);
     maxX = std::min(PLOT_MAX, maxX);
 
-    // Compute practical range for plotting
-    double minY = std::numeric_limits<double>::infinity();
-    double maxY = -std::numeric_limits<double>::infinity();
-    std::unordered_map<std::string, double> vars;
-    bool hasFiniteValues = false;
+    double x_center = (minX + maxX) / 2.0;
+    double x_range = maxX - minX;
+    double zoom = 1.0;
 
-    auto func = std::dynamic_pointer_cast<FunctionNode>(expr);
-    bool isTan = func && func->getName() == "tan";
+    std::vector<std::pair<double, double>> coordinates;
+    bool running = true;
 
-    for (const auto& domain : domains) {
-        double start = std::max(domain.first, minX);
-        double end = std::min(domain.second, maxX);
-        if (start >= end) continue;
+    while (running) {
+        clear();
 
-        // For tan(x), avoid asymptotes by narrowing the interval
-        if (isTan) {
-            const double pi = 3.141592653589793;
-            double mid = (start + end) / 2;
-            double k = std::round(mid / pi);
-            start = std::max(start, k * pi - pi / 4); // Avoid ±π/2
-            end = std::min(end, k * pi + pi / 4);
+        double current_minX = x_center - (x_range * zoom) / 2.0;
+        double current_maxX = x_center + (x_range * zoom) / 2.0;
+
+        double minY = std::numeric_limits<double>::infinity();
+        double maxY = -std::numeric_limits<double>::infinity();
+        coordinates.clear();
+        std::unordered_map<std::string, double> vars;
+        bool hasFiniteValues = false;
+
+        auto func = std::dynamic_pointer_cast<FunctionNode>(expr);
+        bool isTan = func && func->getName() == "tan";
+
+        for (const auto& domain : domains) {
+            double start = std::max(domain.first, current_minX);
+            double end = std::min(domain.second, current_maxX);
             if (start >= end) continue;
-        }
 
-        for (double x = start; x <= end; x += (maxX - minX) / (width * 10)) {
-            if (std::abs(x) < EPSILON && (func && (func->getName() == "log" || func->getName() == "ln" ||
-                                                  func->getName() == "log10" || func->getName() == "log2" ||
-                                                  func->getName() == "1/x"))) {
-                continue;
+            if (isTan) {
+                const double pi = 3.141592653589793;
+                double mid = (start + end) / 2;
+                double k = std::round(mid / pi);
+                start = std::max(start, k * pi - pi / 4);
+                end = std::min(end, k * pi + pi / 4);
+                if (start >= end) continue;
             }
-            vars["x"] = x;
-            try {
-                double y = expr->evaluate(vars);
-                if (std::isfinite(y)) {
-                    minY = std::min(minY, y);
-                    maxY = std::max(maxY, y);
-                    hasFiniteValues = true;
+
+            for (double x = start; x <= end; x += (current_maxX - current_minX) / (width * 10)) {
+                if (std::abs(x) < EPSILON && (func && (func->getName() == "log" || func->getName() == "ln" ||
+                                                      func->getName() == "log10" || func->getName() == "log2" ||
+                                                      func->getName() == "1/x"))) {
+                    continue;
                 }
-            } catch (const std::exception&) {
-                // Skip undefined points
+                vars["x"] = x;
+                try {
+                    double y = expr->evaluate(vars);
+                    if (std::isfinite(y)) {
+                        minY = std::min(minY, y);
+                        maxY = std::max(maxY, y);
+                        coordinates.emplace_back(x, y);
+                        hasFiniteValues = true;
+                    }
+                } catch (const std::exception&) {}
             }
         }
-    }
 
-    if (!hasFiniteValues || !std::isfinite(minY) || !std::isfinite(maxY)) {
-        os << "Cannot plot: No finite values in the evaluated range\n";
-        return;
-    }
-
-    // Add padding to the range for better visualization
-    double rangePadding = (maxY - minY) * 0.1;
-    if (rangePadding == 0) rangePadding = 1.0; // Avoid zero range
-    minY -= rangePadding;
-    maxY += rangePadding;
-
-    std::vector<std::vector<char>> grid(height, std::vector<char>(width, ' '));
-    int xAxis = std::max(0, std::min(height - 1, static_cast<int>((0 - minY) / (maxY - minY) * (height - 1))));
-    int yAxis = std::max(0, std::min(width - 1, static_cast<int>((0 - minX) / (maxX - minX) * (width - 1))));
-
-    for (int i = 0; i < height; ++i) {
-        grid[i][yAxis] = '|';
-    }
-    for (int j = 0; j < width; ++j) {
-        grid[xAxis][j] = '-';
-    }
-    grid[xAxis][yAxis] = '+';
-
-    for (const auto& domain : domains) {
-        double start = std::max(domain.first, minX);
-        double end = std::min(domain.second, maxX);
-        if (start >= end) continue;
-
-        if (isTan) {
-            const double pi = 3.141592653589793;
-            double mid = (start + end) / 2;
-            double k = std::round(mid / pi);
-            start = std::max(start, k * pi - pi / 4);
-            end = std::min(end, k * pi + pi / 4);
-            if (start >= end) continue;
+        if (!hasFiniteValues || !std::isfinite(minY) || !std::isfinite(maxY)) {
+            mvprintw(max_y / 2, (max_x - 30) / 2, "No finite values in range");
+            refresh();
+            int ch = getch();
+            if (ch == 'q') running = false;
+            continue;
         }
 
-        for (double x = start; x <= end; x += (maxX - minX) / width) {
-            vars["x"] = x;
-            try {
-                double y = expr->evaluate(vars);
-                if (std::isfinite(y) && y >= minY && y <= maxY) {
-                    int col = static_cast<int>((x - minX) / (maxX - minX) * (width - 1));
-                    int row = height - 1 - static_cast<int>((y - minY) / (maxY - minY) * (height - 1));
-                    if (row >= 0 && row < height && col >= 0 && col < width) {
-                        grid[row][col] = '*';
+        double rangePadding = (maxY - minY) * 0.1;
+        if (rangePadding == 0) rangePadding = 1.0;
+        minY -= rangePadding;
+        maxY += rangePadding;
+
+        int xAxis = std::max(0, std::min(height - 1, static_cast<int>((0 - minY) / (maxY - minY) * (height - 1))));
+        int yAxis = std::max(0, std::min(width - 1, static_cast<int>((0 - current_minX) / (current_maxX - current_minX) * (width - 1))));
+
+        for (int i = 0; i < height; ++i) {
+            mvaddch(i + 1, yAxis + 1, '|');
+        }
+        for (int j = 0; j < width; ++j) {
+            mvaddch(xAxis + 1, j + 1, '-');
+        }
+        mvaddch(xAxis + 1, yAxis + 1, '+');
+
+        for (const auto& coord : coordinates) {
+            double x = coord.first;
+            double y = coord.second;
+            if (std::isfinite(y) && y >= minY && y <= maxY) {
+                int col = static_cast<int>((x - current_minX) / (current_maxX - current_minX) * (width - 1));
+                int row = height - 1 - static_cast<int>((y - minY) / (maxY - minY) * (height - 1));
+                if (row >= 0 && row < height && col >= 0 && col < width) {
+                    mvaddch(row + 1, col + 1, '*');
+                }
+            }
+        }
+
+        mvprintw(0, 0, "X: [%.2f, %.2f], Y: [%.2f, %.2f]", current_minX, current_maxX, minY, maxY);
+        mvprintw(max_y - 1, 0, "Arrows: Pan, +/-: Zoom, s: Save, q: Quit");
+        refresh();
+
+        int ch = getch();
+        switch (ch) {
+            case KEY_LEFT:
+                x_center -= x_range * zoom * 0.1;
+                break;
+            case KEY_RIGHT:
+                x_center += x_range * zoom * 0.1;
+                break;
+            case KEY_UP:
+                zoom *= 0.9;
+                break;
+            case KEY_DOWN:
+                zoom /= 0.9;
+                break;
+            case '+':
+                zoom *= 0.9;
+                break;
+            case '-':
+                zoom /= 0.9;
+                break;
+            case 's':
+                if (!filename.empty()) {
+                    std::ofstream ofs(filename);
+                    if (ofs) {
+                        ofs << std::fixed << std::setprecision(2);
+                        ofs << "x y\n";
+                        for (const auto& coord : coordinates) {
+                            ofs << coord.first << " " << coord.second << "\n";
+                        }
+                        ofs.close();
                     }
                 }
-            } catch (const std::exception&) {
-                // Skip undefined points
-            }
+                break;
+            case 'q':
+                running = false;
+                break;
         }
     }
 
-    os << "y\n";
-    for (int i = 0; i < height; ++i) {
-        os << "| ";
-        for (int j = 0; j < width; ++j) {
-            os << grid[i][j];
+    endwin();
+
+    if (!filename.empty()) {
+        std::ofstream ofs(filename);
+        if (ofs) {
+            ofs << std::fixed << std::setprecision(2);
+            ofs << "x y\n";
+            for (const auto& coord : coordinates) {
+                ofs << coord.first << " " << coord.second << "\n";
+            }
+            ofs.close();
         }
-        os << "\n";
     }
-    os << "  ";
-    for (int j = 0; j < width; ++j) {
-        os << "-";
-    }
-    os << "> x\n";
-    os << "X: [" << std::fixed << std::setprecision(2) << minX << ", " << maxX << "], Y: [" 
-       << std::fixed << std::setprecision(2) << minY << ", " << maxY << "]\n";
 }
