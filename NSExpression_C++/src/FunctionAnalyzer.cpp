@@ -599,8 +599,8 @@ void FunctionAnalyzer::plotNcurses(const std::string& filename) const {
             maxY = range;
         } else if (isTan) {
             // For tan(x), limit the Y range to prevent extreme values
-            minY = std::max(minY, -10.0);
-            maxY = std::min(maxY, 10.0);
+            minY = std::max(minY, -100.0);
+            maxY = std::min(maxY, 100.0);
         }
 
         double rangePadding = (maxY - minY) * 0.1;
