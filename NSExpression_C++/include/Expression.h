@@ -7,6 +7,7 @@
 #include <cmath>
 #include <stdexcept>
 #include <vector>
+#include "Complex.h"
 
 class ExpressionNode {
 public:
@@ -171,6 +172,56 @@ private:
         }
     }
 
+    // Helper function to evaluate expression with complex numbers
+    Complex evaluateComplex(const std::shared_ptr<ExpressionNode>& node, const Complex& x) const {
+        if (auto num = std::dynamic_pointer_cast<NumberNode>(node)) {
+            return Complex(num->getValue());
+        } else if (auto var = std::dynamic_pointer_cast<VariableNode>(node)) {
+            return x;
+        } else if (auto bin = std::dynamic_pointer_cast<BinaryOpNode>(node)) {
+            Complex left = evaluateComplex(bin->getLeft(), x);
+            Complex right = evaluateComplex(bin->getRight(), x);
+            if (bin->getOp() == "+") return left + right;
+            if (bin->getOp() == "-") return left - right;
+            if (bin->getOp() == "*") return left * right;
+            if (bin->getOp() == "/") return left / right;
+            if (bin->getOp() == "^") {
+                if (std::abs(right.getImag()) < 1e-10) {
+                    double power = right.getReal();
+                    if (power == 2) return left * left;
+                    if (power == 3) return left * left * left;
+                    // For other powers, we'll need to implement complex power
+                    throw std::runtime_error("Complex power not implemented");
+                }
+                throw std::runtime_error("Complex power not implemented");
+            }
+            throw std::runtime_error("Unknown operator: " + bin->getOp());
+        } else if (auto unary = std::dynamic_pointer_cast<UnaryOpNode>(node)) {
+            Complex operand = evaluateComplex(unary->getOperand(), x);
+            if (unary->getOp() == "-") return Complex(-operand.getReal(), -operand.getImag());
+            throw std::runtime_error("Unknown unary operator: " + unary->getOp());
+        } else if (auto func = std::dynamic_pointer_cast<FunctionNode>(node)) {
+            Complex arg = evaluateComplex(func->getArgs()[0], x);
+            // For now, we'll only handle basic functions with real arguments
+            if (std::abs(arg.getImag()) > 1e-10) {
+                throw std::runtime_error("Complex function evaluation not implemented");
+            }
+            double realArg = arg.getReal();
+            if (func->getName() == "sin") return Complex(std::sin(realArg));
+            if (func->getName() == "cos") return Complex(std::cos(realArg));
+            if (func->getName() == "tan") return Complex(std::tan(realArg));
+            if (func->getName() == "exp") return Complex(std::exp(realArg));
+            if (func->getName() == "sqrt") {
+                if (realArg < 0) {
+                    return Complex(0, std::sqrt(-realArg));
+                }
+                return Complex(std::sqrt(realArg));
+            }
+            throw std::runtime_error("Unknown function: " + func->getName());
+        }
+        throw std::runtime_error("Unknown node type");
+    }
+
 public:
     EquationNode(std::shared_ptr<ExpressionNode> left, std::shared_ptr<ExpressionNode> right)
         : left(left), right(right) {}
@@ -196,6 +247,117 @@ public:
         }
 
         return -constant / coeff; // Solution: x = -constant / coeff
+    }
+
+    // Solve for complex roots
+    std::vector<Complex> solveComplex(const std::string& var) const {
+        std::vector<Complex> solutions;
+        
+        // For quadratic equations (ax^2 + bx + c = 0)
+        if (auto bin = std::dynamic_pointer_cast<BinaryOpNode>(left)) {
+            if (bin->getOp() == "+") {
+                if (auto leftBin = std::dynamic_pointer_cast<BinaryOpNode>(bin->getLeft())) {
+                    if (leftBin->getOp() == "*") {
+                        // Check if it's a quadratic term (ax^2)
+                        if (auto rightBin = std::dynamic_pointer_cast<BinaryOpNode>(leftBin->getRight())) {
+                            if (rightBin->getOp() == "^") {
+                                if (auto varNode = std::dynamic_pointer_cast<VariableNode>(rightBin->getLeft())) {
+                                    if (varNode->getName() == var) {
+                                        if (auto powerNode = std::dynamic_pointer_cast<NumberNode>(rightBin->getRight())) {
+                                            if (std::abs(powerNode->getValue() - 2.0) < 1e-10) {
+                                                // We have a quadratic equation
+                                                double a = 0, b = 0, c = 0;
+                                                
+                                                // Extract coefficients
+                                                if (auto aNode = std::dynamic_pointer_cast<NumberNode>(leftBin->getLeft())) {
+                                                    a = aNode->getValue();
+                                                }
+                                                
+                                                // Extract linear term (bx)
+                                                if (auto rightTerm = std::dynamic_pointer_cast<BinaryOpNode>(bin->getRight())) {
+                                                    if (rightTerm->getOp() == "*") {
+                                                        if (auto bNode = std::dynamic_pointer_cast<NumberNode>(rightTerm->getLeft())) {
+                                                            if (auto varNode = std::dynamic_pointer_cast<VariableNode>(rightTerm->getRight())) {
+                                                                if (varNode->getName() == var) {
+                                                                    b = bNode->getValue();
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                                
+                                                // Extract constant term (c)
+                                                if (auto cNode = std::dynamic_pointer_cast<NumberNode>(right)) {
+                                                    c = -cNode->getValue();
+                                                }
+                                                
+                                                // Solve quadratic equation
+                                                double discriminant = b * b - 4 * a * c;
+                                                if (std::abs(discriminant) < 1e-10) {
+                                                    // One real root
+                                                    solutions.push_back(Complex(-b / (2 * a)));
+                                                } else if (discriminant > 0) {
+                                                    // Two real roots
+                                                    solutions.push_back(Complex((-b + std::sqrt(discriminant)) / (2 * a)));
+                                                    solutions.push_back(Complex((-b - std::sqrt(discriminant)) / (2 * a)));
+                                                } else {
+                                                    // Two complex roots
+                                                    solutions.push_back(Complex(-b / (2 * a), std::sqrt(-discriminant) / (2 * a)));
+                                                    solutions.push_back(Complex(-b / (2 * a), -std::sqrt(-discriminant) / (2 * a)));
+                                                }
+                                                return solutions;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        // For other equations, use Newton's method with complex numbers
+        const double h = 1e-6;
+        const int max_iterations = 100;
+        const double tolerance = 1e-6;
+        
+        // Try initial guesses
+        std::vector<Complex> initialGuesses = {
+            Complex(1, 0), Complex(-1, 0), Complex(0, 1), Complex(0, -1),
+            Complex(1, 1), Complex(-1, 1), Complex(1, -1), Complex(-1, -1)
+        };
+        
+        for (const Complex& x0 : initialGuesses) {
+            Complex x = x0;
+            for (int i = 0; i < max_iterations; ++i) {
+                Complex fx = evaluateComplex(left, x) - evaluateComplex(right, x);
+                if (fx.magnitude() < tolerance) {
+                    bool is_unique = true;
+                    for (const Complex& sol : solutions) {
+                        if ((x - sol).magnitude() < tolerance) {
+                            is_unique = false;
+                            break;
+                        }
+                    }
+                    if (is_unique) {
+                        solutions.push_back(x);
+                    }
+                    break;
+                }
+                
+                // Complex derivative approximation
+                Complex fx_plus_h = evaluateComplex(left, x + Complex(h, 0)) - evaluateComplex(right, x + Complex(h, 0));
+                Complex fx_plus_hi = evaluateComplex(left, x + Complex(0, h)) - evaluateComplex(right, x + Complex(0, h));
+                Complex dfx = Complex((fx_plus_h.getReal() - fx.getReal()) / h,
+                                    (fx_plus_hi.getImag() - fx.getImag()) / h);
+                
+                if (dfx.magnitude() < 1e-10) break;
+                x = x - fx / dfx;
+            }
+        }
+        
+        return solutions;
     }
 
     std::vector<double> solveNonLinear(const std::string& var, const std::unordered_map<std::string, double>& variables) const;

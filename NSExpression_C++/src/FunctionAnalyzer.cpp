@@ -516,38 +516,72 @@ void FunctionAnalyzer::plotNcurses(const std::string& filename) const {
 
         auto func = std::dynamic_pointer_cast<FunctionNode>(expr);
         bool isTan = func && func->getName() == "tan";
+        bool isRational = false;
+        bool isLinear = false;
 
-        for (const auto& domain : domains) {
-            double start = std::max(domain.first, current_minX);
-            double end = std::min(domain.second, current_maxX);
-            if (start >= end) continue;
+        // Check function type
+        if (auto bin = std::dynamic_pointer_cast<BinaryOpNode>(expr)) {
+            if (bin->getOp() == "/") {
+                if (auto leftConst = std::dynamic_pointer_cast<NumberNode>(bin->getLeft())) {
+                    if (auto rightVar = std::dynamic_pointer_cast<VariableNode>(bin->getRight())) {
+                        if (std::abs(leftConst->getValue() - 1.0) < EPSILON && rightVar->getName() == "x") {
+                            isRational = true;
+                        }
+                    }
+                }
+            } else if (bin->getOp() == "+" || bin->getOp() == "-") {
+                // Check for linear function (ax + b)
+                if (auto leftBin = std::dynamic_pointer_cast<BinaryOpNode>(bin->getLeft())) {
+                    if (leftBin->getOp() == "*") {
+                        if (auto rightVar = std::dynamic_pointer_cast<VariableNode>(leftBin->getRight())) {
+                            if (rightVar->getName() == "x") {
+                                isLinear = true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
+        // Calculate step size based on function type and zoom level
+        double base_step = (current_maxX - current_minX) / (width * 2);
+        double step = base_step;
+        
+        if (isRational) {
+            step = std::min(step, 0.01 * zoom); // Smaller step for rational functions
+        } else if (isTan) {
+            step = std::min(step, 0.05 * zoom); // Smaller step for tangent
+        } else if (isLinear) {
+            step = base_step; // Normal step for linear functions
+        }
+
+        // Generate points
+        for (double x = current_minX; x <= current_maxX; x += step) {
+            if (std::abs(x) < EPSILON && (func && (func->getName() == "log" || func->getName() == "ln" ||
+                                                  func->getName() == "log10" || func->getName() == "log2" ||
+                                                  func->getName() == "1/x"))) {
+                continue;
+            }
+
+            // For tan(x), skip points near asymptotes
             if (isTan) {
                 const double pi = 3.141592653589793;
-                double mid = (start + end) / 2;
-                double k = std::round(mid / pi);
-                start = std::max(start, k * pi - pi / 4);
-                end = std::min(end, k * pi + pi / 4);
-                if (start >= end) continue;
-            }
-
-            for (double x = start; x <= end; x += (current_maxX - current_minX) / (width * 10)) {
-                if (std::abs(x) < EPSILON && (func && (func->getName() == "log" || func->getName() == "ln" ||
-                                                      func->getName() == "log10" || func->getName() == "log2" ||
-                                                      func->getName() == "1/x"))) {
+                double k = std::round(x / pi);
+                if (std::abs(x - (k * pi + pi/2)) < 0.1) {
                     continue;
                 }
-                vars["x"] = x;
-                try {
-                    double y = expr->evaluate(vars);
-                    if (std::isfinite(y)) {
-                        minY = std::min(minY, y);
-                        maxY = std::max(maxY, y);
-                        coordinates.emplace_back(x, y);
-                        hasFiniteValues = true;
-                    }
-                } catch (const std::exception&) {}
             }
+
+            vars["x"] = x;
+            try {
+                double y = expr->evaluate(vars);
+                if (std::isfinite(y)) {
+                    minY = std::min(minY, y);
+                    maxY = std::max(maxY, y);
+                    coordinates.emplace_back(x, y);
+                    hasFiniteValues = true;
+                }
+            } catch (const std::exception&) {}
         }
 
         if (!hasFiniteValues || !std::isfinite(minY) || !std::isfinite(maxY)) {
@@ -558,11 +592,23 @@ void FunctionAnalyzer::plotNcurses(const std::string& filename) const {
             continue;
         }
 
+        // Adjust Y range based on function type
+        if (isRational) {
+            double range = std::max(std::abs(minY), std::abs(maxY));
+            minY = -range;
+            maxY = range;
+        } else if (isTan) {
+            // For tan(x), limit the Y range to prevent extreme values
+            minY = std::max(minY, -10.0);
+            maxY = std::min(maxY, 10.0);
+        }
+
         double rangePadding = (maxY - minY) * 0.1;
         if (rangePadding == 0) rangePadding = 1.0;
         minY -= rangePadding;
         maxY += rangePadding;
 
+        // Draw axes
         int xAxis = std::max(0, std::min(height - 1, static_cast<int>((0 - minY) / (maxY - minY) * (height - 1))));
         int yAxis = std::max(0, std::min(width - 1, static_cast<int>((0 - current_minX) / (current_maxX - current_minX) * (width - 1))));
 
@@ -574,6 +620,7 @@ void FunctionAnalyzer::plotNcurses(const std::string& filename) const {
         }
         mvaddch(xAxis + 1, yAxis + 1, '+');
 
+        // Draw points
         for (const auto& coord : coordinates) {
             double x = coord.first;
             double y = coord.second;
@@ -586,7 +633,8 @@ void FunctionAnalyzer::plotNcurses(const std::string& filename) const {
             }
         }
 
-        mvprintw(0, 0, "X: [%.2f, %.2f], Y: [%.2f, %.2f]", current_minX, current_maxX, minY, maxY);
+        mvprintw(0, 0, "X: [%.2f, %.2f], Y: [%.2f, %.2f], Zoom: %.2f", 
+                 current_minX, current_maxX, minY, maxY, zoom);
         mvprintw(max_y - 1, 0, "Arrows: Pan, +/-: Zoom, s: Save, q: Quit");
         refresh();
 
@@ -599,16 +647,16 @@ void FunctionAnalyzer::plotNcurses(const std::string& filename) const {
                 x_center += x_range * zoom * 0.1;
                 break;
             case KEY_UP:
-                zoom *= 0.9;
+                zoom *= 0.8; // Changed from 0.9 to 0.8 for faster zoom
                 break;
             case KEY_DOWN:
-                zoom /= 0.9;
+                zoom /= 0.8; // Changed from 0.9 to 0.8 for faster zoom
                 break;
             case '+':
-                zoom *= 0.9;
+                zoom *= 0.8;
                 break;
             case '-':
-                zoom /= 0.9;
+                zoom /= 0.8;
                 break;
             case 's':
                 if (!filename.empty()) {

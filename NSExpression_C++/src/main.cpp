@@ -225,14 +225,14 @@ int main() {
                 continue; // Go to next prompt
             } else if (expr->isEquation()) {
                 auto equation = std::dynamic_pointer_cast<EquationNode>(expr);
-                auto solutions = equation->solveNonLinear("x", variables);
-                if (solutions.empty()) {
-                    std::cout << "No real solutions found\n";
+                auto complexSolutions = equation->solveComplex("x");
+                if (complexSolutions.empty()) {
+                    std::cout << "No solutions found\n";
                 } else {
                     std::cout << "Solutions for x: ";
-                    for (size_t i = 0; i < solutions.size(); ++i) {
-                        std::cout << std::fixed << std::setprecision(2) << solutions[i];
-                        if (i < solutions.size() - 1) std::cout << ", ";
+                    for (size_t i = 0; i < complexSolutions.size(); ++i) {
+                        std::cout << complexSolutions[i].toString();
+                        if (i < complexSolutions.size() - 1) std::cout << ", ";
                     }
                     std::cout << "\n";
                 }
