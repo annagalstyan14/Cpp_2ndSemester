@@ -474,6 +474,7 @@ std::pair<double, double> FunctionAnalyzer::getYAxisIntercept() const {
     }
 }
 
+
 void FunctionAnalyzer::plotNcurses(const std::string& filename) const {
     initscr();
     cbreak();
@@ -485,13 +486,6 @@ void FunctionAnalyzer::plotNcurses(const std::string& filename) const {
 
     int max_y, max_x;
     getmaxyx(stdscr, max_y, max_x);
-    if (max_y < 10 || max_x < 20) {
-        mvprintw(0, 0, "Terminal too small to plot");
-        refresh();
-        getch();
-        endwin();
-        return;
-    }
     int width = max_x - 2;
     int height = max_y - 2;
 
@@ -502,8 +496,8 @@ void FunctionAnalyzer::plotNcurses(const std::string& filename) const {
         minX = std::min(minX, domain.first);
         maxX = std::max(maxX, domain.second);
     }
-    minX = std::max(PLOT_MIN, minX);
-    maxX = std::min(PLOT_MAX, maxX);
+    minX = std::max(PLOT_MIN, minX); // PLOT_MIN = -10.0
+    maxX = std::min(PLOT_MAX, maxX); // PLOT_MAX = 10.0
 
     double x_center = (minX + maxX) / 2.0;
     double x_range = maxX - minX;
@@ -516,139 +510,76 @@ void FunctionAnalyzer::plotNcurses(const std::string& filename) const {
         clear();
         erase();
 
+        getmaxyx(stdscr, max_y, max_x);
+        width = max_x - 2;
+        height = max_y - 2;
+
+        if (max_y < 10 || max_x < 20) {
+            mvprintw(0, 0, "Terminal too small, please resize");
+            refresh();
+            continue;
+        }
+
         double current_minX = x_center - (x_range * zoom) / 2.0;
         double current_maxX = x_center + (x_range * zoom) / 2.0;
 
-        double minY = std::numeric_limits<double>::infinity();
-        double maxY = -std::numeric_limits<double>::infinity();
         coordinates.clear();
         std::unordered_map<std::string, double> vars;
         bool hasFiniteValues = false;
-
-        bool isTan = false, isRational = false, isLinear = false, isPolynomial = false;
-        if (auto func = std::dynamic_pointer_cast<FunctionNode>(expr)) {
-            isTan = func->getName() == "tan";
-        }
-        if (auto bin = std::dynamic_pointer_cast<BinaryOpNode>(expr)) {
-            if (bin->getOp() == "/") {
-                if (auto leftConst = std::dynamic_pointer_cast<NumberNode>(bin->getLeft())) {
-                    if (auto rightVar = std::dynamic_pointer_cast<VariableNode>(bin->getRight())) {
-                        if (std::abs(leftConst->getValue() - 1.0) < EPSILON && rightVar->getName() == "x") {
-                            isRational = true;
-                        }
-                    }
-                }
-            } else if (bin->getOp() == "+" || bin->getOp() == "-") {
-                if (auto leftBin = std::dynamic_pointer_cast<BinaryOpNode>(bin->getLeft())) {
-                    if (leftBin->getOp() == "*" && std::dynamic_pointer_cast<VariableNode>(leftBin->getRight()) &&
-                        std::dynamic_pointer_cast<VariableNode>(leftBin->getRight())->getName() == "x") {
-                        isLinear = true;
-                    }
-                }
-            } else if (bin->getOp() == "^") {
-                isPolynomial = true;
-            }
-        }
-
-        double base_step = (current_maxX - current_minX) / (width * 20);
-        double step = base_step;
-        if (isRational) {
-            // Scale step size with zoom and range to avoid too many points
-            step = std::min(base_step, (current_maxX - current_minX) / 1000.0 * zoom);
-            step = std::max(step, 0.001); // Ensure minimum step for detail near x=0
-        } else if (isTan) {
-            step = std::min(step, 0.05 * zoom);
-        } else if (isPolynomial) {
-            step = base_step;
-        }
-
-        // Cap the number of points to prevent overflow
-        size_t max_points = static_cast<size_t>(width * height * 2);
-        size_t point_count = 0;
-        for (double x = current_minX; x <= current_maxX && point_count < max_points; x += step) {
-            if (isRational && std::abs(x) < 1e-3) continue;
-            if (auto func = std::dynamic_pointer_cast<FunctionNode>(expr)) {
-                if (std::abs(x) < EPSILON && (func->getName() == "log" || func->getName() == "ln" ||
-                                              func->getName() == "log10" || func->getName() == "log2")) {
-                    continue;
-                }
-            }
-            if (isTan) {
-                const double pi = 3.141592653589793;
-                double k = std::round(x / pi);
-                if (std::abs(x - (k * pi + pi/2)) < 0.1) continue;
-            }
+        double step = PLOT_STEP; // PLOT_STEP = 0.1
+        for (double x = current_minX; x <= current_maxX; x += step) {
             vars["x"] = x;
             try {
                 double y = expr->evaluate(vars);
                 if (std::isfinite(y)) {
-                    minY = std::min(minY, y);
-                    maxY = std::max(maxY, y);
                     coordinates.emplace_back(x, y);
                     hasFiniteValues = true;
-                    ++point_count;
                 }
-            } catch (const std::exception&) {}
+            } catch (const std::exception& e) {
+                // Skip invalid points
+            }
         }
 
-        if (!hasFiniteValues || !std::isfinite(minY) || !std::isfinite(maxY)) {
+        if (!hasFiniteValues) {
             mvprintw(max_y / 2, (max_x - 30) / 2, "No finite values in range");
-            mvprintw(2, 0, "Points generated: %zu", coordinates.size());
             refresh();
-            int ch = getch();
-            if (ch == 'q') running = false;
             continue;
         }
 
-        if (isRational) {
-            double maxAbsY = std::max(std::abs(minY), std::abs(maxY));
-            minY = -maxAbsY * 2.0;
-            maxY = maxAbsY * 2.0;
-        } else {
-            double rangePadding = (maxY - minY) * 0.2;
-            if (maxY == minY) rangePadding = std::max(1.0, std::abs(maxY) * 0.2);
-            minY -= rangePadding;
-            maxY += rangePadding;
+        // Compute y-range to include y=0
+        double minY = std::numeric_limits<double>::infinity();
+        double maxY = -std::numeric_limits<double>::infinity();
+        for (const auto& coord : coordinates) {
+            minY = std::min(minY, coord.second);
+            maxY = std::max(maxY, coord.second);
         }
+        // Ensure y=0 is in view
+        minY = std::min(minY, 0.0);
+        maxY = std::max(maxY, 0.0);
+        // Minimal padding to avoid excessive shift
+        double rangePadding = (maxY - minY) * 0.05; // Reduced from 0.2
+        if (maxY == minY) rangePadding = 1.0;
+        minY -= rangePadding;
+        maxY += rangePadding;
 
-        int xAxis = std::max(0, std::min(height - 1, static_cast<int>((0 - minY) / (maxY - minY) * (height - 1))));
+        // Compute axes positions
         int yAxis = std::max(0, std::min(width - 1, static_cast<int>((0 - current_minX) / (current_maxX - current_minX) * (width - 1))));
+        int xAxis;
+        if (minY <= 0 && maxY >= 0) {
+            // Place x-axis at y=0
+            xAxis = height - 1 - static_cast<int>((0 - minY) / (maxY - minY) * (height - 1));
+        } else {
+            // Place x-axis at middle if y=0 is not in range
+            xAxis = height / 2;
+        }
+        xAxis = std::max(0, std::min(height - 1, xAxis));
 
+        // Draw axes
         for (int i = 0; i < height; ++i) mvaddch(i + 1, yAxis + 1, '|');
         for (int j = 0; j < width; ++j) mvaddch(xAxis + 1, j + 1, '-');
         mvaddch(xAxis + 1, yAxis + 1, '+');
 
-        if (isRational && current_minX <= 0 && current_maxX >= 0) {
-            int col = static_cast<int>((0 - current_minX) / (current_maxX - current_minX) * (width - 1));
-            if (col >= 0 && col < width) {
-                for (int row = 0; row < height; ++row) {
-                    mvaddch(row + 1, col + 1, '|');
-                }
-            }
-        }
-        if (isTan) {
-            const double pi = 3.141592653589793;
-            for (double x = current_minX; x <= current_maxX; x += pi/2) {
-                double k = std::round(x / pi);
-                double asymptote = k * pi + pi/2;
-                if (asymptote >= current_minX && asymptote <= current_maxX) {
-                    int col = static_cast<int>((asymptote - current_minX) / (current_maxX - current_minX) * (width - 1));
-                    if (col >= 0 && col < width) {
-                        for (int row = 0; row < height; ++row) {
-                            mvaddch(row + 1, col + 1, '|');
-                        }
-                    }
-                }
-            }
-        }
-
-        if (coordinates.size() > max_points) {
-            mvprintw(max_y - 2, 0, "Too many points to render (%zu)", coordinates.size());
-            refresh();
-            getch();
-            continue;
-        }
-
+        // Plot points
         for (const auto& coord : coordinates) {
             double x = coord.first;
             double y = coord.second;
@@ -661,56 +592,22 @@ void FunctionAnalyzer::plotNcurses(const std::string& filename) const {
             }
         }
 
-        mvprintw(0, 0, "Points: %zu, X: [%.2f, %.2f], Y: [%.2f, %.2f], Zoom: %.2f", 
-                 coordinates.size(), current_minX, current_maxX, minY, maxY, zoom);
-        mvprintw(max_y - 1, 0, "Arrows: Pan, +/-: Zoom, s: Save, q: Quit");
+        // Display ranges
+        mvprintw(0, 0, "x: [%.2f, %.2f]", current_minX, current_maxX);
+        mvprintw(1, 0, "y: [%.2f, %.2f]", minY, maxY);
+        mvprintw(max_y - 1, 0, "q:quit +:zoom in -:zoom out arrows:pan");
+
         refresh();
 
         int ch = getch();
-        if (ch == ERR) continue;
         switch (ch) {
+            case 'q': running = false; break;
             case KEY_LEFT: x_center -= x_range * zoom * 0.1; break;
             case KEY_RIGHT: x_center += x_range * zoom * 0.1; break;
-            case KEY_UP: zoom *= 0.8; break;
-            case KEY_DOWN: zoom /= 0.8; break;
             case '+': zoom *= 0.8; break;
             case '-': zoom /= 0.8; break;
-            case 's':
-                if (!filename.empty()) {
-                    std::ofstream ofs(filename);
-                    if (!ofs) {
-                        mvprintw(max_y - 2, 0, "Error: Could not save to %s", filename.c_str());
-                        refresh();
-                        getch();
-                    } else {
-                        ofs << std::fixed << std::setprecision(2);
-                        ofs << "x y\n";
-                        for (const auto& coord : coordinates) {
-                            ofs << coord.first << " " << coord.second << "\n";
-                        }
-                        ofs.close();
-                        mvprintw(max_y - 2, 0, "Saved to %s", filename.c_str());
-                        refresh();
-                        getch();
-                    }
-                }
-                break;
-            case 'q': running = false; break;
         }
+        zoom = std::max(0.01, std::min(100.0, zoom)); // Bound zoom
     }
-
     endwin();
-    std::cout << std::flush;
-
-    if (!filename.empty()) {
-        std::ofstream ofs(filename);
-        if (ofs) {
-            ofs << std::fixed << std::setprecision(2);
-            ofs << "x y\n";
-            for (const auto& coord : coordinates) {
-                ofs << coord.first << " " << coord.second << "\n";
-            }
-            ofs.close();
-        }
-    }
 }
