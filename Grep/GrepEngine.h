@@ -13,10 +13,12 @@ public:
 
 private:
     GrepOptions options;
+    std::vector<std::string> buffer;
 
     void searchInFile(const std::string& filename);
     void printMatch(const std::string& filename, const std::string& line, int lineNumber, const std::smatch& match);
     bool matchesPattern(const std::string& line, std::smatch& match);
+    void printContext(int lineNumber, const std::string& filename);
 };
 
 #endif
