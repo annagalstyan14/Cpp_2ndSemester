@@ -15,8 +15,6 @@ int main() {
     std::unordered_map<std::string, double> variables;
     variables["pi"] = 3.14159;
     variables["e"] = 2.71828;
-    variables["Na"] = 6.02214076e23;
-    variables["g"] = 9.81;
 
     std::cout << "Enter an expression, equation, or 'quit' to exit.\n";
     std::cout << "Use 'analyze' to analyze a function or 'plot' to graph it.\n";
