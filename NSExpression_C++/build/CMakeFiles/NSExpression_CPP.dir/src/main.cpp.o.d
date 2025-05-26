@@ -801,4 +801,4 @@ CMakeFiles/NSExpression_CPP.dir/src/main.cpp.o: \
   /Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/include/Token.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/iostream \
   /Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/include/Parser.h \
-  /Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/include/FunctionAnalyzer.h
+  /Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/src/FunctionAnalyzer.h

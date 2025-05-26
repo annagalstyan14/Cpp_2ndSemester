@@ -2228,7 +2228,6 @@ CMakeFiles/NSExpression_CPP.dir/src/FunctionAnalyzer.cpp.o: /Users/annagalstyan/
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/iomanip \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/ios \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/iosfwd \
-  /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/iostream \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/istream \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/iterator \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/limits \
@@ -2421,10 +2420,7 @@ CMakeFiles/NSExpression_CPP.dir/src/FunctionAnalyzer.cpp.o: /Users/annagalstyan/
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/stdint.h \
   /Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/include/Complex.h \
   /Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/include/Expression.h \
-  /Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/include/FunctionAnalyzer.h \
-  /Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/include/Lexer.h \
-  /Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/include/Parser.h \
-  /Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/include/Token.h
+  /Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/src/FunctionAnalyzer.h
 
 CMakeFiles/NSExpression_CPP.dir/src/Lexer.cpp.o: /Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/src/Lexer.cpp \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/Availability.h \
@@ -6417,21 +6413,23 @@ CMakeFiles/NSExpression_CPP.dir/src/main.cpp.o: /Users/annagalstyan/Desktop/proj
   /Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/include/Complex.h \
   /Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/include/Evaluator.h \
   /Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/include/Expression.h \
-  /Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/include/FunctionAnalyzer.h \
   /Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/include/Lexer.h \
   /Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/include/Parser.h \
-  /Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/include/Token.h
+  /Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/include/Token.h \
+  /Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/src/FunctionAnalyzer.h
 
 
 /Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/include/Utilities.h:
 
+/Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/include/Parser.h:
+
 /Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/src/Parser.cpp:
+
+/Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/include/Lexer.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/unordered_set:
 
-/Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/include/Parser.h:
-
-/Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/include/Lexer.h:
+/Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/src/FunctionAnalyzer.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/unctrl.h:
 
@@ -6676,8 +6674,6 @@ CMakeFiles/NSExpression_CPP.dir/src/main.cpp.o: /Users/annagalstyan/Desktop/proj
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types/_fd_copy.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/stdlib.h:
-
-/Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/NSExpression_C++/include/FunctionAnalyzer.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__ranges/from_range.h:
 

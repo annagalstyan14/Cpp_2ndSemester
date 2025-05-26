@@ -1,10 +1,18 @@
 #include "FunctionAnalyzer.h"
+#include "Expression.h"
 #include <cmath>
 #include <limits>
 #include <algorithm>
 #include <iomanip>
 #include <ncurses.h>
 #include <fstream>
+#include <unordered_map>
+
+// Constants for plotting and analysis
+constexpr double PLOT_MIN = -10.0;
+constexpr double PLOT_MAX = 10.0;
+constexpr double PLOT_STEP = 0.1;
+constexpr double EPSILON = 1e-10;
 
 FunctionAnalyzer::FunctionAnalyzer(const std::shared_ptr<ExpressionNode>& expr) : expr(expr) {}
 
@@ -474,13 +482,13 @@ std::pair<double, double> FunctionAnalyzer::getYAxisIntercept() const {
     }
 }
 
-
 void FunctionAnalyzer::plotNcurses(const std::string& filename) const {
+    // Initialize ncurses
     initscr();
     cbreak();
     noecho();
     keypad(stdscr, TRUE);
-    nodelay(stdscr, TRUE);
+    curs_set(0);  // Hide cursor
     timeout(100);
     flushinp();
 
@@ -489,6 +497,7 @@ void FunctionAnalyzer::plotNcurses(const std::string& filename) const {
     int width = max_x - 2;
     int height = max_y - 2;
 
+    // Get domain and range
     auto domains = getDomain();
     double minX = std::numeric_limits<double>::infinity();
     double maxX = -std::numeric_limits<double>::infinity();
@@ -496,12 +505,14 @@ void FunctionAnalyzer::plotNcurses(const std::string& filename) const {
         minX = std::min(minX, domain.first);
         maxX = std::max(maxX, domain.second);
     }
-    minX = std::max(PLOT_MIN, minX); // PLOT_MIN = -10.0
-    maxX = std::min(PLOT_MAX, maxX); // PLOT_MAX = 10.0
+    minX = std::max(PLOT_MIN, minX);
+    maxX = std::min(PLOT_MAX, maxX);
 
     double x_center = (minX + maxX) / 2.0;
     double x_range = maxX - minX;
     double zoom = 1.0;
+    double y_center = 0.0;
+    double y_range = x_range;
 
     std::vector<std::pair<double, double>> coordinates;
     bool running = true;
@@ -522,12 +533,15 @@ void FunctionAnalyzer::plotNcurses(const std::string& filename) const {
 
         double current_minX = x_center - (x_range * zoom) / 2.0;
         double current_maxX = x_center + (x_range * zoom) / 2.0;
+        double current_minY = y_center - (y_range * zoom) / 2.0;
+        double current_maxY = y_center + (y_range * zoom) / 2.0;
 
+        // Calculate points
         coordinates.clear();
         std::unordered_map<std::string, double> vars;
         bool hasFiniteValues = false;
-        double step = PLOT_STEP; // PLOT_STEP = 0.1
-        for (double x = current_minX; x <= current_maxX; x += step) {
+        double step = PLOT_STEP * zoom;
+        for (double x = current_minX; x <= current_maxX + step / 2; x += step) {
             vars["x"] = x;
             try {
                 double y = expr->evaluate(vars);
@@ -535,7 +549,7 @@ void FunctionAnalyzer::plotNcurses(const std::string& filename) const {
                     coordinates.emplace_back(x, y);
                     hasFiniteValues = true;
                 }
-            } catch (const std::exception& e) {
+            } catch (const std::exception&) {
                 // Skip invalid points
             }
         }
@@ -546,68 +560,86 @@ void FunctionAnalyzer::plotNcurses(const std::string& filename) const {
             continue;
         }
 
-        // Compute y-range to include y=0
+        // Compute y-range
         double minY = std::numeric_limits<double>::infinity();
         double maxY = -std::numeric_limits<double>::infinity();
         for (const auto& coord : coordinates) {
             minY = std::min(minY, coord.second);
             maxY = std::max(maxY, coord.second);
         }
-        // Ensure y=0 is in view
-        minY = std::min(minY, 0.0);
-        maxY = std::max(maxY, 0.0);
-        // Minimal padding to avoid excessive shift
-        double rangePadding = (maxY - minY) * 0.05; // Reduced from 0.2
-        if (maxY == minY) rangePadding = 1.0;
+        minY = std::min(minY, std::min(0.0, current_minY));
+        maxY = std::max(maxY, std::max(0.0, current_maxY));
+        double rangePadding = (maxY - minY) * 0.05;
+        if (maxY == minY) {
+            minY -= 1.0;
+            maxY += 1.0;
+        }
         minY -= rangePadding;
         maxY += rangePadding;
 
-        // Compute axes positions
-        int yAxis = std::max(0, std::min(width - 1, static_cast<int>((0 - current_minX) / (current_maxX - current_minX) * (width - 1))));
-        int xAxis;
-        if (minY <= 0 && maxY >= 0) {
-            // Place x-axis at y=0
-            xAxis = height - 1 - static_cast<int>((0 - minY) / (maxY - minY) * (height - 1));
-        } else {
-            // Place x-axis at middle if y=0 is not in range
-            xAxis = height / 2;
-        }
+        // Draw axes
+        int yAxis = static_cast<int>((0 - current_minX) / (current_maxX - current_minX) * width);
+        int xAxis = static_cast<int>(height - 1 - (0 - minY) / (maxY - minY) * (height - 1));
+        yAxis = std::max(0, std::min(width - 1, yAxis));
         xAxis = std::max(0, std::min(height - 1, xAxis));
 
-        // Draw axes
-        for (int i = 0; i < height; ++i) mvaddch(i + 1, yAxis + 1, '|');
-        for (int j = 0; j < width; ++j) mvaddch(xAxis + 1, j + 1, '-');
+        // Draw coordinate system
+        for (int i = 0; i < height; ++i) {
+            mvaddch(i + 1, yAxis + 1, '|');
+        }
+        for (int j = 0; j < width; ++j) {
+            mvaddch(xAxis + 1, j + 1, '-');
+        }
         mvaddch(xAxis + 1, yAxis + 1, '+');
 
         // Plot points
         for (const auto& coord : coordinates) {
             double x = coord.first;
             double y = coord.second;
-            if (std::isfinite(y) && y >= minY && y <= maxY) {
+            if (std::isfinite(y) && x >= current_minX && x <= current_maxX && y >= minY && y <= maxY) {
                 int col = static_cast<int>((x - current_minX) / (current_maxX - current_minX) * (width - 1));
-                int row = height - 1 - static_cast<int>((y - minY) / (maxY - minY) * (height - 1));
+                int row = static_cast<int>(height - 1 - (y - minY) / (maxY - minY) * (height - 1));
                 if (row >= 0 && row < height && col >= 0 && col < width) {
                     mvaddch(row + 1, col + 1, '*');
                 }
             }
         }
 
-        // Display ranges
+        // Display information
         mvprintw(0, 0, "x: [%.2f, %.2f]", current_minX, current_maxX);
         mvprintw(1, 0, "y: [%.2f, %.2f]", minY, maxY);
-        mvprintw(max_y - 1, 0, "q:quit +:zoom in -:zoom out arrows:pan");
+        mvprintw(max_y - 1, 0, "q:quit up:zoom in down:zoom out left/right:x-pan +/-:y-pan");
 
         refresh();
 
+        // Handle input
         int ch = getch();
         switch (ch) {
-            case 'q': running = false; break;
-            case KEY_LEFT: x_center -= x_range * zoom * 0.1; break;
-            case KEY_RIGHT: x_center += x_range * zoom * 0.1; break;
-            case '+': zoom *= 0.8; break;
-            case '-': zoom /= 0.8; break;
+            case 'q':
+                running = false;
+                break;
+            case KEY_LEFT:
+                x_center -= x_range * zoom * 0.1;
+                break;
+            case KEY_RIGHT:
+                x_center += x_range * zoom * 0.1;
+                break;
+            case KEY_UP:
+                zoom *= 0.8;
+                break;
+            case KEY_DOWN:
+                zoom /= 0.8;
+                break;
+            case '+':
+                y_center += y_range * zoom * 0.1;
+                break;
+            case '-':
+                y_center -= y_range * zoom * 0.1;
+                break;
         }
-        zoom = std::max(0.01, std::min(100.0, zoom)); // Bound zoom
+        zoom = std::max(0.01, std::min(10.0, zoom));
     }
+
+    // Cleanup
     endwin();
 }
