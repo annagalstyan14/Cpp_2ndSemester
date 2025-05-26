@@ -552,15 +552,26 @@ void FunctionAnalyzer::plotNcurses(const std::string& filename) const {
 
         double base_step = (current_maxX - current_minX) / (width * 20);
         double step = base_step;
-        if (isRational) step = std::min(step, 0.001 * zoom);
-        else if (isTan) step = std::min(step, 0.05 * zoom);
-        else if (isPolynomial) step = base_step;
+        if (isRational) {
+            // Scale step size with zoom and range to avoid too many points
+            step = std::min(base_step, (current_maxX - current_minX) / 1000.0 * zoom);
+            step = std::max(step, 0.001); // Ensure minimum step for detail near x=0
+        } else if (isTan) {
+            step = std::min(step, 0.05 * zoom);
+        } else if (isPolynomial) {
+            step = base_step;
+        }
 
-        for (double x = current_minX; x <= current_maxX; x += step) {
+        // Cap the number of points to prevent overflow
+        size_t max_points = static_cast<size_t>(width * height * 2);
+        size_t point_count = 0;
+        for (double x = current_minX; x <= current_maxX && point_count < max_points; x += step) {
             if (isRational && std::abs(x) < 1e-3) continue;
-            if (std::abs(x) < EPSILON && (func && (func->getName() == "log" || func->getName() == "ln" ||
-                                                  func->getName() == "log10" || func->getName() == "log2"))) {
-                continue;
+            if (auto func = std::dynamic_pointer_cast<FunctionNode>(expr)) {
+                if (std::abs(x) < EPSILON && (func->getName() == "log" || func->getName() == "ln" ||
+                                              func->getName() == "log10" || func->getName() == "log2")) {
+                    continue;
+                }
             }
             if (isTan) {
                 const double pi = 3.141592653589793;
@@ -575,6 +586,7 @@ void FunctionAnalyzer::plotNcurses(const std::string& filename) const {
                     maxY = std::max(maxY, y);
                     coordinates.emplace_back(x, y);
                     hasFiniteValues = true;
+                    ++point_count;
                 }
             } catch (const std::exception&) {}
         }
@@ -630,8 +642,8 @@ void FunctionAnalyzer::plotNcurses(const std::string& filename) const {
             }
         }
 
-        if (coordinates.size() > static_cast<size_t>(width * height * 2)) {
-            mvprintw(max_y - 2, 0, "Too many points to render");
+        if (coordinates.size() > max_points) {
+            mvprintw(max_y - 2, 0, "Too many points to render (%zu)", coordinates.size());
             refresh();
             getch();
             continue;
