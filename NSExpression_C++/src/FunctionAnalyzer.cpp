@@ -624,16 +624,16 @@ void FunctionAnalyzer::plotNcurses(const std::string& filename) const {
             case KEY_RIGHT:
                 x_center += x_range * zoom * 0.1;
                 break;
-            case KEY_UP:
+            case '+':
                 zoom *= 0.8;
                 break;
-            case KEY_DOWN:
+            case '-':
                 zoom /= 0.8;
                 break;
-            case '+':
+            case KEY_UP:
                 y_center += y_range * zoom * 0.1;
                 break;
-            case '-':
+            case KEY_DOWN:
                 y_center -= y_range * zoom * 0.1;
                 break;
         }
