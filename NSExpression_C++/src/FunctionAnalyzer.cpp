@@ -123,6 +123,7 @@ std::vector<std::pair<double, double>> FunctionAnalyzer::getDomain() const {
 
 std::pair<double, double> FunctionAnalyzer::getRange() const {
     // [Unchanged code]
+    return {-10, 10};
     auto func = std::dynamic_pointer_cast<FunctionNode>(expr);
     if (func) {
         if (func->getName() == "sin" || func->getName() == "cos") {
