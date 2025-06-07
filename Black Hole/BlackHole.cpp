@@ -16,10 +16,22 @@ bool BlackHole::isInsideEventHorizon(double px, double py, double pz) const {
     return dist < Rs;
 }
 
-void BlackHole::getAcceleration(double px, double py, double pz, double& ax, double& ay, double& az) const {}
+void BlackHole::getAcceleration(double px, double py, double pz, double& ax, double& ay, double& az) const {
+    double dist = sqrt(pow(px - x, 2) + pow(py - y,2) + pow(pz - z,2));
+    if (dist < Rs) ax = ay = az = 0;
+    else {
+        ax = - G * mass * (px - x)/pow(dist, 3);
+        ay = - G * mass * (py - y)/pow(dist, 3);
+        az = - G * mass * (pz - z)/pow(dist, 3);
+    }; 
+}
 
 double BlackHole::getDeflectionAngle(double impactParameter) const {}
 
-void updateParticle() {}
+double BlackHole::timeDialation(double px, double py, double pz) const {}
 
-void saveTrajectory() {}
+void updateParticle(const BlackHole& bh, Particle& p, double dt) {}
+
+void saveTrajectory(const std::vector<Particle>& particles, const std::string& filename) {}
+
+void simulateAccretionDisk(const BlackHole& bh, std::vector<Particle>& particles, double dt, int steps) {};
