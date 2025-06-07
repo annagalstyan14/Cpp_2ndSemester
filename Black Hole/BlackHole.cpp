@@ -7,13 +7,18 @@
 #include <SFML/System.hpp>
 
 
-BlackHole::BlackHole() : {}
+BlackHole::BlackHole(double m, double x0, double y0, double z0) : mass(m), x(x0), y(y0), z(z0) {
+    double Rs = 2 * G * mass / (c * c); // the radius of a sphere around a massive object, where the escape velocity equals the speed of light
+}
 
-bool BlackHole::isInsideEventHorizon() const {}
+bool BlackHole::isInsideEventHorizon(double px, double py, double pz) const {
+    double dist = sqrt(pow(px - x, 2) + pow(py - y,2) + pow(pz - z,2));
+    return dist < Rs;
+}
 
-void BlackHole::getAcceleration() const {}
+void BlackHole::getAcceleration(double px, double py, double pz, double& ax, double& ay, double& az) const {}
 
-double BlackHole::getDeflectionAngle() const {}
+double BlackHole::getDeflectionAngle(double impactParameter) const {}
 
 void updateParticle() {}
 
