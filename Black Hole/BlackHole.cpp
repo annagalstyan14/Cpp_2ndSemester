@@ -26,11 +26,24 @@ void BlackHole::getAcceleration(double px, double py, double pz, double& ax, dou
     }; 
 }
 
-double BlackHole::getDeflectionAngle(double impactParameter) const {}
+double BlackHole::getDeflectionAngle(double b, double teta) const {
+  if (b < Rs) teta = 0;
+  else {
+        teta = (4*G*mass)/pow(c,2)*b;
+  }
+}
 
-double BlackHole::timeDialation(double px, double py, double pz) const {}
+double BlackHole::timeDialation(double px, double py, double pz) const {
+    double dist = sqrt(pow(px - x, 2) + pow(py - y,2) + pow(pz - z,2));
+    if (dist < Rs) return 0;
+    else {
+        return sqrt(1-Rs/dist);
+    }
+}
 
-void updateParticle(const BlackHole& bh, Particle& p, double dt) {}
+void updateParticle(const BlackHole& bh, Particle& p, double dt) {
+    
+}
 
 void saveTrajectory(const std::vector<Particle>& particles, const std::string& filename) {}
 

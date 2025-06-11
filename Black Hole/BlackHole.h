@@ -19,10 +19,10 @@ class BlackHole{
     double mass;
     double Rs;
 
-    BlackHole(double x0 = 0, double y0 = 0, double z0 = 0, double m);
+    BlackHole(double x0 = 0, double y0 = 0, double z0 = 0, double m = 1.989 * pow(10,30));
     bool BlackHole::isInsideEventHorizon(double px, double py, double pz) const;
     void BlackHole::getAcceleration(double px, double py, double pz, double& ax, double& ay, double& az) const;
-    double BlackHole::getDeflectionAngle(double impactParameter) const;
+    double BlackHole::getDeflectionAngle(double b, double teta) const;
     double BlackHole::timeDialation(double px, double py, double pz) const;
 };
 
