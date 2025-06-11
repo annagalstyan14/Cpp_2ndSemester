@@ -10,7 +10,6 @@ const double c = 2.99792458e8;
 struct Particle{
     double x, y, z;
     double vx, vy, vz;
-    double mass;
 };
 
 class BlackHole{
