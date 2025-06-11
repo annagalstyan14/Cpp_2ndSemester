@@ -28,6 +28,6 @@ class BlackHole{
 
 void updateParticle(const BlackHole& bh, Particle& p, double dt);
 void saveTrajectory(const std::vector<Particle>& particles, const std::string& filename);
-void simulateAccretionDisk(const BlackHole& bh, std::vector<Particle>& particles, double dt, int steps);
+//void simulateAccretionDisk(const BlackHole& bh, std::vector<Particle>& particles, double dt, int steps);
 
 #endif
