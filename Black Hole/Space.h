@@ -1,19 +1,26 @@
-#ifndef SPACE_H
-#define SPACE_H
-
-#include <string>
+#pragma once
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
 #include "Shader.h"
+#include "Camera.h"
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 class Space {
-private:
-    unsigned int textureID;
-    unsigned int quadVAO, quadVBO;
-    Shader* shader;  // Pointer to shader program
-
 public:
-    Space(const std::string& imagePath, const std::string& vertexPath, const std::string& fragmentPath);
+    Space();
     ~Space();
-    void draw();
-};
+    void render();
+    void processInput(GLFWwindow* window, float deltaTime);
+    void processMouseMovement(float xoffset, float yoffset);
+    void processMouseScroll(float yoffset);
+    Camera camera;
 
-#endif
+private:
+    unsigned int VAO, VBO, EBO;
+    unsigned int texture;
+    Shader shader;
+    void setupBuffers();
+    void loadTexture();
+};

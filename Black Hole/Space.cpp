@@ -98,31 +98,46 @@ void Shader::setInt(const std::string &name, int value) const {
 #include <iostream>
 #include "stb_image.h"
 
-Space::Space(const std::string& imagePath, const std::string& vertexPath, const std::string& fragmentPath) {
-    // Create and compile shaders
-    shader = new Shader(vertexPath.c_str(), fragmentPath.c_str());
-    shader->use(); // Activate shader before setting uniforms
+Space::Space() : shader("space.vert", "space.frag") {
+    setupBuffers();
+    loadTexture();
+    camera = Camera(glm::vec3(0.0f, 0.0f, 3.0f));
+}
 
-    // Set up vertex data for a quad
+Space::~Space() {
+    glDeleteVertexArrays(1, &VAO);
+    glDeleteBuffers(1, &VBO);
+    glDeleteBuffers(1, &EBO);
+}
+
+void Space::setupBuffers() {
     float vertices[] = {
-        // positions   // texture coords
-        -1.0f,  1.0f,  0.0f, 1.0f,  // top left
-        -1.0f, -1.0f,  0.0f, 0.0f,  // bottom left
-         1.0f, -1.0f,  1.0f, 0.0f,  // bottom right
-         1.0f,  1.0f,  1.0f, 1.0f   // top right
-    };
-    unsigned int indices[] = {
-        0, 1, 3,  // first triangle
-        1, 2, 3   // second triangle
+        // positions          // texture coords
+        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+         0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+        
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f
     };
 
-    // Create VAO, VBO, and EBO
-    unsigned int VBO, EBO;
-    glGenVertexArrays(1, &quadVAO);
+    unsigned int indices[] = {
+        0, 1, 2, 2, 3, 0,  // front
+        1, 5, 6, 6, 2, 1,  // right
+        5, 4, 7, 7, 6, 5,  // back
+        4, 0, 3, 3, 7, 4,  // left
+        3, 2, 6, 6, 7, 3,  // top
+        4, 5, 1, 1, 0, 4   // bottom
+    };
+
+    glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
     glGenBuffers(1, &EBO);
 
-    glBindVertexArray(quadVAO);
+    glBindVertexArray(VAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
@@ -130,61 +145,75 @@ Space::Space(const std::string& imagePath, const std::string& vertexPath, const 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-    // Position attribute
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+    // position attribute
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
-    // Texture coord attribute
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+    // texture coord attribute
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
+}
 
-    // Load and create texture
-    glGenTextures(1, &textureID);
-    glBindTexture(GL_TEXTURE_2D, textureID);
+void Space::loadTexture() {
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
 
-    // Set texture wrapping parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    // Set texture filtering parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    // Load image
     int width, height, nrChannels;
-    stbi_set_flip_vertically_on_load(false); // Do not flip the texture vertically
-    unsigned char* data = stbi_load(imagePath.c_str(), &width, &height, &nrChannels, 0);
+    unsigned char *data = stbi_load("space.jpg", &width, &height, &nrChannels, 0);
     if (data) {
-        std::cout << "Successfully loaded texture: " << imagePath << std::endl;
-        std::cout << "Width: " << width << ", Height: " << height << ", Channels: " << nrChannels << std::endl;
-        
-        GLenum format = GL_RGB;
-        if (nrChannels == 4)
-            format = GL_RGBA;
-        else if (nrChannels == 1)
-            format = GL_RED;
-
-        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
     } else {
-        std::cerr << "Failed to load texture: " << imagePath << std::endl;
-        std::cerr << "STB Error: " << stbi_failure_reason() << std::endl;
+        std::cout << "Failed to load texture" << std::endl;
     }
     stbi_image_free(data);
-
-    // Set the texture uniform
-    shader->setInt("texture1", 0);
 }
 
-Space::~Space() {
-    glDeleteVertexArrays(1, &quadVAO);
-    glDeleteTextures(1, &textureID);
-    delete shader;
+void Space::render() {
+    shader.use();
+    
+    // Set up projection matrix
+    glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), 800.0f/600.0f, 0.1f, 100.0f);
+    shader.setMat4("projection", projection);
+    
+    // Set up view matrix
+    glm::mat4 view = camera.GetViewMatrix();
+    shader.setMat4("view", view);
+    
+    // Set up model matrix
+    glm::mat4 model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+    model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.5f, 1.0f, 0.0f));
+    shader.setMat4("model", model);
+
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glBindVertexArray(VAO);
+    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 }
 
-void Space::draw() {
-    shader->use();
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, textureID);
-    glBindVertexArray(quadVAO);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-    glBindVertexArray(0);
+void Space::processInput(GLFWwindow* window, float deltaTime) {
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        camera.ProcessKeyboard(0, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        camera.ProcessKeyboard(1, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        camera.ProcessKeyboard(2, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        camera.ProcessKeyboard(3, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+        camera.ProcessKeyboard(4, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+        camera.ProcessKeyboard(5, deltaTime);
+}
+
+void Space::processMouseMovement(float xoffset, float yoffset) {
+    camera.ProcessMouseMovement(xoffset, yoffset);
+}
+
+void Space::processMouseScroll(float yoffset) {
+    camera.ProcessMouseScroll(yoffset);
 }

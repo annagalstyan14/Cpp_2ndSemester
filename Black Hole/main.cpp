@@ -13,10 +13,15 @@
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
+// Global variables
+float lastX = 400, lastY = 300;
+bool firstMouse = true;
+float deltaTime = 0.0f;
+float lastFrame = 0.0f;
+Space* space;
+
 // Camera parameters
 float yaw = -90.0f, pitch = 0.0f;
-float lastX = SCR_WIDTH / 2.0f, lastY = SCR_HEIGHT / 2.0f;
-bool firstMouse = true;
 float fov = 45.0f;
 
 float cameraRadius = 5.0f;
@@ -25,6 +30,25 @@ float cameraAngle = 0.0f;
 // Callbacks
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
+}
+
+void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
+    if (firstMouse) {
+        lastX = xpos;
+        lastY = ypos;
+        firstMouse = false;
+    }
+
+    float xoffset = xpos - lastX;
+    float yoffset = lastY - ypos;
+    lastX = xpos;
+    lastY = ypos;
+
+    space->processMouseMovement(xoffset, yoffset);
+}
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
+    space->processMouseScroll(yoffset);
 }
 
 void processInput(GLFWwindow *window) {
@@ -50,6 +74,11 @@ int main() {
     }
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetScrollCallback(window, scroll_callback);
+
+    // Tell GLFW to capture our mouse
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     if (!gladLoadGL((GLADloadfunc)glfwGetProcAddress)) {
         std::cerr << "Failed to initialize GLAD" << std::endl;
@@ -58,6 +87,9 @@ int main() {
 
     // Set viewport
     glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
+
+    // Enable depth testing
+    glEnable(GL_DEPTH_TEST);
 
     // Black hole setup
     BlackHole bh(1.989e30, 0, 0, 0);
@@ -75,7 +107,7 @@ int main() {
     std::cout << "Using shader paths:\n" << vertexPath << "\n" << fragmentPath << std::endl;
 
     // Space background
-    Space space("stars.png", vertexPath.c_str(), fragmentPath.c_str());
+    space = new Space("stars.png", vertexPath.c_str(), fragmentPath.c_str());
 
     // Enable transparency blending once
     glEnable(GL_BLEND);
@@ -83,6 +115,10 @@ int main() {
 
     // Main loop
     while (!glfwWindowShouldClose(window)) {
+        float currentFrame = glfwGetTime();
+        deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
+
         processInput(window);
 
         // Simulation
@@ -96,14 +132,15 @@ int main() {
 
         // Rendering
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        space.draw();
+        space->draw();
 
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
+    delete space;
     glfwTerminate();
     return 0;
 }
