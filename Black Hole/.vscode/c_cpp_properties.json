@@ -4,10 +4,14 @@
       "name": "Mac",
       "includePath": [
         "${workspaceFolder}/**",
-        "/opt/homebrew/opt/sfml@2/include"
+        "/opt/homebrew/include",
+        "${workspaceFolder}/BlackHole"
       ],
       "defines": [],
-      "macFrameworkPath": [],
+      "macFrameworkPath": [
+        "/System/Library/Frameworks",
+        "/Library/Frameworks"
+      ],
       "compilerPath": "/usr/bin/clang",
       "cStandard": "c11",
       "cppStandard": "c++17",

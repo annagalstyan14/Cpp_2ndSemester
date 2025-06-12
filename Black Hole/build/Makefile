@@ -153,6 +153,54 @@ BlackHole.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/BlackHoleSim.dir/build.make CMakeFiles/BlackHoleSim.dir/BlackHole.cpp.s
 .PHONY : BlackHole.cpp.s
 
+Space.o: Space.cpp.o
+.PHONY : Space.o
+
+# target to build an object file
+Space.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BlackHoleSim.dir/build.make CMakeFiles/BlackHoleSim.dir/Space.cpp.o
+.PHONY : Space.cpp.o
+
+Space.i: Space.cpp.i
+.PHONY : Space.i
+
+# target to preprocess a source file
+Space.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BlackHoleSim.dir/build.make CMakeFiles/BlackHoleSim.dir/Space.cpp.i
+.PHONY : Space.cpp.i
+
+Space.s: Space.cpp.s
+.PHONY : Space.s
+
+# target to generate assembly for a file
+Space.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BlackHoleSim.dir/build.make CMakeFiles/BlackHoleSim.dir/Space.cpp.s
+.PHONY : Space.cpp.s
+
+gl.o: gl.c.o
+.PHONY : gl.o
+
+# target to build an object file
+gl.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BlackHoleSim.dir/build.make CMakeFiles/BlackHoleSim.dir/gl.c.o
+.PHONY : gl.c.o
+
+gl.i: gl.c.i
+.PHONY : gl.i
+
+# target to preprocess a source file
+gl.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BlackHoleSim.dir/build.make CMakeFiles/BlackHoleSim.dir/gl.c.i
+.PHONY : gl.c.i
+
+gl.s: gl.c.s
+.PHONY : gl.s
+
+# target to generate assembly for a file
+gl.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BlackHoleSim.dir/build.make CMakeFiles/BlackHoleSim.dir/gl.c.s
+.PHONY : gl.c.s
+
 main.o: main.cpp.o
 .PHONY : main.o
 
@@ -189,6 +237,12 @@ help:
 	@echo "... BlackHole.o"
 	@echo "... BlackHole.i"
 	@echo "... BlackHole.s"
+	@echo "... Space.o"
+	@echo "... Space.i"
+	@echo "... Space.s"
+	@echo "... gl.o"
+	@echo "... gl.i"
+	@echo "... gl.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"

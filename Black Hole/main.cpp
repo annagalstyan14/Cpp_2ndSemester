@@ -1,44 +1,79 @@
 #include "BlackHole.h"
-#include <SFML/Graphics.hpp>
-#include <SFML/Window.hpp>
-#include <SFML/System.hpp>
+#include "Space.h"
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#include <iostream>
 #include <vector>
 #include <string>
 #include <fstream>
+#include <cmath>
+
+const unsigned int SCR_WIDTH = 800;
+const unsigned int SCR_HEIGHT = 600;
+
+// Camera parameters
+float yaw = -90.0f, pitch = 0.0f;
+float lastX = SCR_WIDTH / 2.0f, lastY = SCR_HEIGHT / 2.0f;
+bool firstMouse = true;
+float fov = 45.0f;
+
+float cameraRadius = 5.0f;
+float cameraAngle = 0.0f;
+
+// Callbacks
+void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
+    glViewport(0, 0, width, height);
+}
+
+void processInput(GLFWwindow *window) {
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, true);
+}
 
 int main() {
-    // SFML setup
-    sf::RenderWindow window(sf::VideoMode(512, 512), "Black Hole");
-    sf::Image image;
-    image.create(512, 512, sf::Color::White);
-    sf::Texture texture;
-    if (!texture.loadFromImage(image)) return 1;
-    sf::Sprite sprite(texture);
+    // Init GLFW
+    glfwInit();
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    // Simulation setup
+#ifdef __APPLE__
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+#endif
+
+    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Black Hole Simulation", NULL, NULL);
+    if (window == NULL) {
+        std::cerr << "Failed to create GLFW window" << std::endl;
+        glfwTerminate();
+        return -1;
+    }
+    glfwMakeContextCurrent(window);
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+        std::cerr << "Failed to initialize GLAD" << std::endl;
+        return -1;
+    }
+
+    // Set viewport
+    glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
+
+    // Black hole setup
     BlackHole bh(1.989e30, 0, 0, 0);
-    sf::CircleShape blackHoleShape(50.f); // Radius in pixels
-    blackHoleShape.setFillColor(sf::Color::Black);
-    blackHoleShape.setOrigin(50.f, 50.f); // Set origin to center for positioning
-    blackHoleShape.setPosition(window.getSize().x / 2.f, window.getSize().y / 2.f); // Center of the window
-
     std::vector<Particle> particles = {
-        {1e9, 0, 0, 0, 1e6, 0} // Example particle: r=1e9 m, vy=1e6 m/s
+        {1e9, 0, 0, 0, 1e6, 0} // Example particle
     };
     int step = 0;
     const int maxSteps = 1000;
 
-    // Main loop
-    while (window.isOpen()) {
-        // Handle events
-        sf::Event event;
-        while (window.pollEvent(event)) {
-            if (event.type == sf::Event::Closed) {
-                window.close();
-            }
-        }
+    // Space background
+    Space space("stars.png");
 
-        // Simulation (one step per frame)
+    // Main loop
+    while (!glfwWindowShouldClose(window)) {
+        processInput(window);
+
+        // Simulation
         if (step < maxSteps) {
             for (auto& p : particles) {
                 updateParticle(p, bh, 0.01);
@@ -47,11 +82,16 @@ int main() {
             step++;
         }
 
-        // Render
-        window.clear(sf::Color::White);
-        window.draw(blackHoleShape); // Draw black hole
-        window.display();
+        // Rendering
+        glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        space.draw();
+
+        glfwSwapBuffers(window);
+        glfwPollEvents();
     }
 
+    glfwTerminate();
     return 0;
 }
