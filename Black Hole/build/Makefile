@@ -153,6 +153,30 @@ BlackHole.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/BlackHoleSim.dir/build.make CMakeFiles/BlackHoleSim.dir/BlackHole.cpp.s
 .PHONY : BlackHole.cpp.s
 
+Space.o: Space.cpp.o
+.PHONY : Space.o
+
+# target to build an object file
+Space.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BlackHoleSim.dir/build.make CMakeFiles/BlackHoleSim.dir/Space.cpp.o
+.PHONY : Space.cpp.o
+
+Space.i: Space.cpp.i
+.PHONY : Space.i
+
+# target to preprocess a source file
+Space.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BlackHoleSim.dir/build.make CMakeFiles/BlackHoleSim.dir/Space.cpp.i
+.PHONY : Space.cpp.i
+
+Space.s: Space.cpp.s
+.PHONY : Space.s
+
+# target to generate assembly for a file
+Space.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BlackHoleSim.dir/build.make CMakeFiles/BlackHoleSim.dir/Space.cpp.s
+.PHONY : Space.cpp.s
+
 main.o: main.cpp.o
 .PHONY : main.o
 
@@ -189,6 +213,9 @@ help:
 	@echo "... BlackHole.o"
 	@echo "... BlackHole.i"
 	@echo "... BlackHole.s"
+	@echo "... Space.o"
+	@echo "... Space.i"
+	@echo "... Space.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"

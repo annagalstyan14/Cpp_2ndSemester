@@ -3,6 +3,8 @@ file(REMOVE_RECURSE
   "BlackHoleSim.pdb"
   "CMakeFiles/BlackHoleSim.dir/BlackHole.cpp.o"
   "CMakeFiles/BlackHoleSim.dir/BlackHole.cpp.o.d"
+  "CMakeFiles/BlackHoleSim.dir/Space.cpp.o"
+  "CMakeFiles/BlackHoleSim.dir/Space.cpp.o.d"
   "CMakeFiles/BlackHoleSim.dir/main.cpp.o"
   "CMakeFiles/BlackHoleSim.dir/main.cpp.o.d"
 )

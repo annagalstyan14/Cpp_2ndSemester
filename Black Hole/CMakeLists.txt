@@ -1,26 +1,23 @@
-cmake_minimum_required(VERSION 3.10)
-project(BlackHoleSim)
+cmake_minimum_required(VERSION 3.15)
+  project(BlackHoleSim)
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+  set(CMAKE_CXX_STANDARD 17)
 
-# Find SFML
-find_package(SFML 3.0 COMPONENTS Graphics Window System REQUIRED)
+  # Explicitly set include directories
+  include_directories(${CMAKE_SOURCE_DIR})
+  include_directories(/opt/homebrew/opt/sfml@2/include)
 
-# Add source files
-set(SOURCES
-    main.cpp
-    BlackHole.cpp
-)
+  # Find SFML with custom path
+  set(SFML_DIR "/opt/homebrew/opt/sfml@2/lib/cmake/SFML")
+  find_package(SFML 2.6.2 REQUIRED COMPONENTS graphics window system)
 
-# Create executable
-add_executable(BlackHoleSim ${SOURCES})
+  # Print SFML include directories and libraries for debugging
+  message(STATUS "SFML include dirs: ${SFML_INCLUDE_DIRS}")
+  message(STATUS "SFML libraries: ${SFML_LIBRARIES}")
 
-# Link SFML libraries
-if (SFML_FOUND)
-    target_link_libraries(BlackHoleSim PRIVATE SFML::Graphics SFML::Window SFML::System)
-endif()
+  # Add executable
+  add_executable(BlackHoleSim main.cpp BlackHole.cpp Space.cpp)
 
-# No longer need to copy shader files
-# file(COPY ${CMAKE_SOURCE_DIR}/space.vert DESTINATION ${CMAKE_BINARY_DIR})
-# file(COPY ${CMAKE_SOURCE_DIR}/space.frag DESTINATION ${CMAKE_BINARY_DIR})
+  # Link SFML libraries explicitly
+  target_link_libraries(BlackHoleSim sfml-graphics sfml-window sfml-system)
+  target_include_directories(BlackHoleSim PRIVATE ${SFML_INCLUDE_DIRS})
