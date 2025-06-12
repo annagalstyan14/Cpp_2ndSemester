@@ -7,27 +7,26 @@
 const double G = 6.67430e-11;
 const double c = 2.99792458e8;
 
-struct Particle{
+struct Particle {
     double x, y, z;
     double vx, vy, vz;
 };
 
-class BlackHole{
-    private:
-    double x,y,z;
+class BlackHole {
+private:
+    double x, y, z;
     double mass;
     double rs;
-    
-    public:
-    BlackHole(double x0, double y0, double z0, double m);
-    bool BlackHole::isInsideEventHorizon(double px, double py, double pz) const;
-    void BlackHole::getAcceleration(double px, double py, double pz, double& ax, double& ay, double& az) const;
-    double BlackHole::getDeflectionAngle(double b) const;
-    double BlackHole::timeDialation(double px, double py, double pz) const;
+
+public:
+    BlackHole(double m, double x0, double y0, double z0);
+    bool isInsideEventHorizon(double px, double py, double pz) const;
+    void getAcceleration(double px, double py, double pz, double& ax, double& ay, double& az) const;
+    double getDeflectionAngle(double b) const;
+    double computeTimeDilation(double px, double py, double pz) const;
 };
 
-void updateParticle(const BlackHole& bh, Particle& p, double dt);
+void updateParticle(Particle& p, const BlackHole& bh, double dt);
 void saveTrajectory(const std::vector<Particle>& particles, const std::string& filename);
-//void simulateAccretionDisk(const BlackHole& bh, std::vector<Particle>& particles, double dt, int steps);
 
 #endif

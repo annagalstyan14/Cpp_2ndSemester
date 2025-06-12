@@ -1,0 +1,3 @@
+/Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/Black Hole/build/CMakeFiles/BlackHoleSim.dir
+/Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/Black Hole/build/CMakeFiles/edit_cache.dir
+/Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/Black Hole/build/CMakeFiles/rebuild_cache.dir
