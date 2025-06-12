@@ -8,17 +8,19 @@ add_executable(BlackHoleSim
     BlackHole.cpp
     Space.cpp
     gl.c
+    Shader.cpp
+    stb_image_impl.cpp
 )
 
-# Add include directories
-include_directories(
+# Include directories
+target_include_directories(BlackHoleSim PRIVATE
     ${CMAKE_SOURCE_DIR}/include
 )
 
 find_package(OpenGL REQUIRED)
 find_package(glfw3 3.3 REQUIRED)
 
-# Link OpenGL and GLFW
+# Link libraries
 target_link_libraries(BlackHoleSim
     glfw
     ${OPENGL_gl_LIBRARY}

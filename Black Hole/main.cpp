@@ -8,6 +8,7 @@
 #include <fstream>
 #include <cmath>
 #include "stb_image.h"
+#include <filesystem>
 
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
@@ -37,7 +38,6 @@ int main() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
 #ifdef __APPLE__
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
@@ -67,8 +67,19 @@ int main() {
     int step = 0;
     const int maxSteps = 1000;
 
+    // Get the absolute paths for shader files
+    std::filesystem::path currentPath = std::filesystem::current_path();
+    std::string vertexPath = (currentPath.parent_path() / "space.vert").string();
+    std::string fragmentPath = (currentPath.parent_path() / "space.frag").string();
+
+    std::cout << "Using shader paths:\n" << vertexPath << "\n" << fragmentPath << std::endl;
+
     // Space background
-    Space space("stars.png");
+    Space space("stars.png", vertexPath.c_str(), fragmentPath.c_str());
+
+    // Enable transparency blending once
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // Main loop
     while (!glfwWindowShouldClose(window)) {
@@ -85,7 +96,6 @@ int main() {
 
         // Rendering
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-
         glClear(GL_COLOR_BUFFER_BIT);
 
         space.draw();

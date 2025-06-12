@@ -153,6 +153,30 @@ BlackHole.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/BlackHoleSim.dir/build.make CMakeFiles/BlackHoleSim.dir/BlackHole.cpp.s
 .PHONY : BlackHole.cpp.s
 
+Shader.o: Shader.cpp.o
+.PHONY : Shader.o
+
+# target to build an object file
+Shader.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BlackHoleSim.dir/build.make CMakeFiles/BlackHoleSim.dir/Shader.cpp.o
+.PHONY : Shader.cpp.o
+
+Shader.i: Shader.cpp.i
+.PHONY : Shader.i
+
+# target to preprocess a source file
+Shader.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BlackHoleSim.dir/build.make CMakeFiles/BlackHoleSim.dir/Shader.cpp.i
+.PHONY : Shader.cpp.i
+
+Shader.s: Shader.cpp.s
+.PHONY : Shader.s
+
+# target to generate assembly for a file
+Shader.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BlackHoleSim.dir/build.make CMakeFiles/BlackHoleSim.dir/Shader.cpp.s
+.PHONY : Shader.cpp.s
+
 Space.o: Space.cpp.o
 .PHONY : Space.o
 
@@ -225,6 +249,30 @@ main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/BlackHoleSim.dir/build.make CMakeFiles/BlackHoleSim.dir/main.cpp.s
 .PHONY : main.cpp.s
 
+stb_image_impl.o: stb_image_impl.cpp.o
+.PHONY : stb_image_impl.o
+
+# target to build an object file
+stb_image_impl.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BlackHoleSim.dir/build.make CMakeFiles/BlackHoleSim.dir/stb_image_impl.cpp.o
+.PHONY : stb_image_impl.cpp.o
+
+stb_image_impl.i: stb_image_impl.cpp.i
+.PHONY : stb_image_impl.i
+
+# target to preprocess a source file
+stb_image_impl.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BlackHoleSim.dir/build.make CMakeFiles/BlackHoleSim.dir/stb_image_impl.cpp.i
+.PHONY : stb_image_impl.cpp.i
+
+stb_image_impl.s: stb_image_impl.cpp.s
+.PHONY : stb_image_impl.s
+
+# target to generate assembly for a file
+stb_image_impl.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BlackHoleSim.dir/build.make CMakeFiles/BlackHoleSim.dir/stb_image_impl.cpp.s
+.PHONY : stb_image_impl.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -237,6 +285,9 @@ help:
 	@echo "... BlackHole.o"
 	@echo "... BlackHole.i"
 	@echo "... BlackHole.s"
+	@echo "... Shader.o"
+	@echo "... Shader.i"
+	@echo "... Shader.s"
 	@echo "... Space.o"
 	@echo "... Space.i"
 	@echo "... Space.s"
@@ -246,6 +297,9 @@ help:
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
+	@echo "... stb_image_impl.o"
+	@echo "... stb_image_impl.i"
+	@echo "... stb_image_impl.s"
 .PHONY : help
 
 
