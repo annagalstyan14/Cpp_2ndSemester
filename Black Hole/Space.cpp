@@ -1,116 +1,121 @@
 #include "Space.h"
-#include "Settings.h" // For WINDOW_WIDTH and WINDOW_HEIGHT
+#include "Settings.h"
 #include <cmath>
-#include <cstdlib>
-#include <iostream> // For debug output
-#define _USE_MATH_DEFINES
+#include <random>
+#include <iostream>
 
-Space::Space() {}
+Space::Space() {
+    initStars(200);
+}
 
-std::vector<Particle> Space::generateAccretionDisk(const BlackHole& bh, int numParticles, double radius, double mass) {
-    std::vector<Particle> particles;
-    particles.reserve(numParticles);
-    
-    for (int i = 0; i < numParticles; ++i) {
-        double angle = 2 * M_PI * i / numParticles;
-        double r = radius * (0.5 + 0.5 * static_cast<double>(rand()) / RAND_MAX);
-        
-        double px = bh.getX() + r * cos(angle);
-        double py = bh.getY() + r * sin(angle);
-        double pz = bh.getZ();
-        
-        double v = std::sqrt(BlackHole::getG() * bh.getMass() / r);
-        double vx = -v * sin(angle);
-        double vy = v * cos(angle);
-        double vz = 0;
-        
-        particles.push_back({px, py, pz, vx, vy, vz, mass, true});
+void Space::initStars(int numStars) {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<float> xDist(0, WINDOW_WIDTH);
+    std::uniform_real_distribution<float> yDist(0, WINDOW_HEIGHT);
+
+    stars.clear();
+    for (int i = 0; i < numStars; ++i) {
+        sf::Vertex star;
+        star.position = sf::Vector2f(xDist(gen), yDist(gen));
+        star.color = sf::Color::White;
+        stars.push_back(star);
     }
-    
-    return particles;
 }
 
 std::vector<LightRay> Space::generateLightRays(int numRays, const BlackHole& bh) {
     std::vector<LightRay> rays;
+    rays.reserve(numRays);
+
+    double startX = 0; // Start left
+    double startY = WINDOW_HEIGHT / 2.0;
+    double spacing = 20.0; // Increased for wider spread
+
     for (int i = 0; i < numRays; ++i) {
-        double startX = WINDOW_WIDTH * 0.75 + (WINDOW_WIDTH * 0.25 * i / (numRays - 1)); // Top-right quarter
-        double startY = WINDOW_HEIGHT * 0.25 * i / (numRays - 1); // Spread vertically in top quarter
-        double initialVx = -0.7; // Downward-left trajectory
-        double initialVy = -0.7;
-        LightRay ray = {startX, startY, initialVx, initialVy, false};
-        ray.history.push_back(sf::Vector2f(static_cast<float>(startX), static_cast<float>(startY)));
+        double x = startX;
+        double y = startY + (i - numRays / 2) * spacing;
+
+        // Rightward velocity (no tangential component)
+        double speed = 100.0; // Match BlackHole.cpp
+        double vx = speed;
+        double vy = 0.0;
+
+        LightRay ray;
+        ray.x = x;
+        ray.y = y;
+        ray.vx = vx;
+        ray.vy = vy;
+        ray.active = true;
+        ray.history.push_back(sf::Vector2f((float)x, (float)y));
+
         rays.push_back(ray);
     }
+
     return rays;
 }
 
 bool Space::animateRays(std::vector<LightRay>& rays, const BlackHole& bh, double dt) {
     bool anyActive = false;
-    std::cout << "Animation step: " << animationStep << std::endl; // Debug output
+
     if (animationStep < MAX_STEPS) {
-        int raysToActivate = std::min(5, static_cast<int>(rays.size()) - animationStep / 10);
-        for (int i = 0; i < raysToActivate && animationStep / 10 + i < rays.size(); ++i) {
-            if (!rays[animationStep / 10 + i].active) {
-                rays[animationStep / 10 + i].active = true;
-                std::cout << "Activated ray at (" << rays[animationStep / 10 + i].x << ", " << rays[animationStep / 10 + i].y << ")" << std::endl;
-            }
-        }
         for (auto& ray : rays) {
             if (ray.active) {
-                bh.bendLightRay(ray, dt * 100); // Increase dt for more bending
+                bh.bendLightRay(ray, dt);
                 ray.x += ray.vx * dt;
                 ray.y += ray.vy * dt;
-                ray.history.push_back(sf::Vector2f(static_cast<float>(ray.x), static_cast<float>(ray.y)));
-                if (ray.history.size() > 100) ray.history.erase(ray.history.begin()); // Limit history size
-                std::cout << "Ray updated to (" << ray.x << ", " << ray.y << ") with vx=" << ray.vx << ", vy=" << ray.vy << std::endl;
-                anyActive = true;
+
+                ray.history.push_back(sf::Vector2f((float)ray.x, (float)ray.y));
+                std::cout << "Ray pos: (" << ray.x << ", " << ray.y << "), vel: (" << ray.vx << ", " << ray.vy << "), active: " << ray.active << "\n";
+
+                if (ray.active) {
+                    anyActive = true;
+                }
             }
         }
         animationStep++;
     }
+
     return anyActive;
 }
 
 void Space::renderStaticElements(sf::RenderWindow& window, const BlackHole& bh) {
-    sf::Vector2u windowSize = window.getSize();
-    float width = static_cast<float>(windowSize.x);
-    float height = static_cast<float>(windowSize.y);
+    // Black hole shadow
+    float coreRadius = (float)bh.getEventHorizonRadius() * 1.5f;
+    sf::CircleShape blackHoleCore(coreRadius);
+    blackHoleCore.setFillColor(sf::Color::Black);
+    blackHoleCore.setOrigin(coreRadius, coreRadius);
+    blackHoleCore.setPosition(bh.getX(), bh.getY());
+    window.draw(blackHoleCore);
 
-    // Black hole (event horizon)
-    sf::CircleShape eventHorizon(25.0f); // Radius in pixels
-    eventHorizon.setFillColor(sf::Color::Black);
-    eventHorizon.setPosition(bh.getX() - 25.0f, bh.getY() - 25.0f); // Center it
-    window.draw(eventHorizon);
-
-    // Accretion disk (brown ring)
-    sf::CircleShape accretionDisk(50.0f);
-    accretionDisk.setFillColor(sf::Color(139, 69, 19)); // Brown
-    accretionDisk.setPosition(bh.getX() - 50.0f, bh.getY() - 50.0f);
-    accretionDisk.setOutlineThickness(5.0f);
-    accretionDisk.setOutlineColor(sf::Color::Transparent);
+    // Accretion disk
+    float accretionInnerRadius = coreRadius * 1.1f;
+    float accretionOuterRadius = accretionInnerRadius * 1.2f;
+    sf::CircleShape accretionDisk(accretionOuterRadius);
+    accretionDisk.setFillColor(sf::Color::Transparent);
+    accretionDisk.setOutlineThickness(accretionOuterRadius - accretionInnerRadius);
+    accretionDisk.setOutlineColor(sf::Color::White);
+    accretionDisk.setOrigin(accretionOuterRadius, accretionOuterRadius);
+    accretionDisk.setPosition(bh.getX(), bh.getY());
     window.draw(accretionDisk);
-
-    // Orange rings
-    for (int i = 1; i <= 5; ++i) {
-        sf::CircleShape ring(50.0f + i * 10.0f);
-        ring.setFillColor(sf::Color::Transparent);
-        ring.setOutlineThickness(2.0f);
-        uint8_t intensity = static_cast<uint8_t>(200 * (1.0 - static_cast<float>(i) / 6));
-        ring.setOutlineColor(sf::Color(255, 165, 0, intensity)); // Orange with fading
-        ring.setPosition(bh.getX() - (50.0f + i * 10.0f), bh.getY() - (50.0f + i * 10.0f));
-        window.draw(ring);
-    }
 }
 
 void Space::renderLightRays(sf::RenderWindow& window, const std::vector<LightRay>& rays) {
     for (const auto& ray : rays) {
-        if (ray.active && !ray.history.empty()) {
+        if (ray.history.size() > 1) {
             sf::VertexArray trail(sf::LineStrip, ray.history.size());
-            for (size_t j = 0; j < ray.history.size(); ++j) {
-                trail[j].position = ray.history[j];
-                trail[j].color = sf::Color(255, 69, 0, static_cast<uint8_t>(255 * (1.0 - static_cast<float>(j) / ray.history.size()))); // Fading red-orange
+            for (size_t i = 0; i < ray.history.size(); ++i) {
+                trail[i].position = ray.history[i];
+                trail[i].color = sf::Color::Red; // Solid red
             }
             window.draw(trail);
         }
     }
+}
+
+void Space::renderStars(sf::RenderWindow& window) {
+    sf::VertexArray starArray(sf::Points, stars.size());
+    for (size_t i = 0; i < stars.size(); ++i) {
+        starArray[i] = stars[i];
+    }
+    window.draw(starArray);
 }

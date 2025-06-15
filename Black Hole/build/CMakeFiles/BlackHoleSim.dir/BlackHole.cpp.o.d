@@ -871,4 +871,6 @@ CMakeFiles/BlackHoleSim.dir/BlackHole.cpp.o: \
   /Users/annagalstyan/Downloads/SFML-2.6.2\ 2/include/SFML/Graphics/Sprite.hpp \
   /Users/annagalstyan/Downloads/SFML-2.6.2\ 2/include/SFML/Graphics/Text.hpp \
   /Users/annagalstyan/Downloads/SFML-2.6.2\ 2/include/SFML/Graphics/VertexBuffer.hpp \
-  /Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/Black\ Hole/Common.h
+  /Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/Black\ Hole/Common.h \
+  /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/iostream \
+  /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/istream

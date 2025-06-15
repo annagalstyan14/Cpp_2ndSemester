@@ -2,14 +2,14 @@
 #define BLACKHOLE_H
 
 #include <SFML/Graphics.hpp>
-#include "Common.h" // Include the common definitions
+#include "Common.h"
 
 class BlackHole {
 private:
     double mass;
     double x, y, z;
-    static const double G;
-    static const double SPEED_OF_LIGHT;
+    static constexpr double G = 1.0;
+    static constexpr double SPEED_OF_LIGHT = 1.0;
 
 public:
     BlackHole(double m, double xPos, double yPos, double zPos);
@@ -18,9 +18,6 @@ public:
     double getY() const { return y; }
     double getZ() const { return z; }
     double getEventHorizonRadius() const;
-    void bendLightRay(LightRay& ray, double dt) const; // Added const qualifier
-    static double getG() { return G; }                 // Public accessor for G
-    static double getSpeedOfLight() { return SPEED_OF_LIGHT; } // Public accessor for SPEED_OF_LIGHT
+    void bendLightRay(LightRay& ray, double dt) const;
 };
-
 #endif

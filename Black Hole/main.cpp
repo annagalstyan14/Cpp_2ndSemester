@@ -5,52 +5,44 @@
 #include <iostream>
 
 int main() {
-    sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Black Hole Visualization");
+    sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Black Hole Simulation");
     window.setFramerateLimit(FPS_LIMIT);
 
-    BlackHole bh(10.0, WINDOW_WIDTH / 2.0, WINDOW_HEIGHT / 2.0, 0.0); // Center of screen
+    BlackHole bh(10.0, WINDOW_WIDTH / 2.f, WINDOW_HEIGHT / 2.f, 0.0); // Increased mass
     Space space;
-    auto rays = space.generateLightRays(500, bh);
+    auto rays = space.generateLightRays(50, bh); // Increased to 50 rays
 
-    bool isSimulationRunning = false;
+    bool isRunning = true;
+    bool isSimulating = false;
 
-    while (window.isOpen()) {
+    while (isRunning) {
         sf::Event event;
         while (window.pollEvent(event)) {
-            if (event.type == sf::Event::Closed) {
-                window.close();
-            }
-            else if (event.type == sf::Event::KeyPressed) {
-                std::cout << "Key pressed: " << event.key.code << std::endl;
-                switch (event.key.code) {
-                    case sf::Keyboard::Escape:
-                        window.close();
-                        break;
-                    case sf::Keyboard::Space:
-                        isSimulationRunning = !isSimulationRunning;
-                        if (isSimulationRunning) {
-                            space.animationStep = 0;
-                        }
-                        break;
-                    default:
-                        break;
+            if (event.type == sf::Event::Closed)
+                isRunning = false;
+            if (event.type == sf::Event::KeyPressed) {
+                if (event.key.code == sf::Keyboard::Escape)
+                    isRunning = false;
+                if (event.key.code == sf::Keyboard::Space) {
+                    isSimulating = !isSimulating;
+                    if (isSimulating) {
+                        space.animationStep = 0;
+                        rays = space.generateLightRays(50, bh);
+                    }
                 }
             }
         }
 
-        window.clear(sf::Color::White); // White background
+        window.clear(sf::Color::Black);
 
-        // Render static elements (black hole and accretion disk)
+        space.renderStars(window);
         space.renderStaticElements(window, bh);
 
-        // Render and animate dynamic elements (photon trails) if simulation is running
-        if (isSimulationRunning) {
-            std::cout << "Animating frame, step: " << space.animationStep << std::endl;
-            if (space.animateRays(rays, bh, 0.008)) { // dt = 1/60s for 60 FPS
-                space.renderLightRays(window, rays);
-            } else {
-                isSimulationRunning = false;
+        if (isSimulating) {
+            if (!space.animateRays(rays, bh, 0.075)) { // Small dt for smooth paths
+                isSimulating = false;
             }
+            space.renderLightRays(window, rays);
         }
 
         window.display();
