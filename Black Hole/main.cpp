@@ -1,57 +1,58 @@
+#include <SFML/Graphics.hpp>
 #include "BlackHole.h"
 #include "Space.h"
-#include "Utils.h"
 #include "Settings.h"
-#include <SFML/Graphics.hpp>
-#include <vector>
-#include <string>
+#include <iostream>
 
 int main() {
-    sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "2D Black Hole Simulation");
-    window.setFramerateLimit(60);
+    sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Black Hole Visualization");
+    window.setFramerateLimit(FPS_LIMIT);
 
-    sf::View view(sf::FloatRect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT));
-    window.setView(view);
-
-    sf::Image image;
-    image.create(WINDOW_WIDTH, WINDOW_HEIGHT, sf::Color::Black);
-    sf::Texture texture;
-    sf::Sprite sprite;
-
-    BlackHole blackHole(BH_MASS, BH_POS_X, BH_POS_Y, BH_RADIUS);
+    BlackHole bh(10.0, WINDOW_WIDTH / 2.0, WINDOW_HEIGHT / 2.0, 0.0); // Center of screen
     Space space;
-    std::vector<Particle> particles = space.generateAccretionDisk(blackHole, PARTICLE_COUNT, DISK_RADIUS, INIT_SPEED);
-    std::vector<LightRay> rays = space.generateLightRays(LIGHT_RAY_COUNT, blackHole);
+    auto rays = space.generateLightRays(500, bh);
 
-    int step = 0;
-    const int maxSteps = 2000;
+    bool isSimulationRunning = false;
 
     while (window.isOpen()) {
         sf::Event event;
         while (window.pollEvent(event)) {
-            if (event.type == sf::Event::Closed) window.close();
-            else if (event.type == sf::Event::MouseWheelScrolled) {
-                float delta = event.mouseWheelScroll.delta;
-                view.zoom(delta > 0 ? 0.9f : 1.1f);
-                window.setView(view);
+            if (event.type == sf::Event::Closed) {
+                window.close();
             }
             else if (event.type == sf::Event::KeyPressed) {
-                if (event.key.code == sf::Keyboard::R) view = sf::View(sf::FloatRect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT));
-                window.setView(view);
+                std::cout << "Key pressed: " << event.key.code << std::endl;
+                switch (event.key.code) {
+                    case sf::Keyboard::Escape:
+                        window.close();
+                        break;
+                    case sf::Keyboard::Space:
+                        isSimulationRunning = !isSimulationRunning;
+                        if (isSimulationRunning) {
+                            space.animationStep = 0;
+                        }
+                        break;
+                    default:
+                        break;
+                }
             }
         }
 
-        if (step < maxSteps) {
-            for (auto& p : particles) blackHole.updateParticle(p, TIME_STEP);
-            for (auto& ray : rays) blackHole.bendLightRay(ray, TIME_STEP);
-            space.renderScene(image, blackHole, particles, rays);
-            texture.loadFromImage(image);
-            sprite.setTexture(texture);
-            step++;
+        window.clear(sf::Color::White); // White background
+
+        // Render static elements (black hole and accretion disk)
+        space.renderStaticElements(window, bh);
+
+        // Render and animate dynamic elements (photon trails) if simulation is running
+        if (isSimulationRunning) {
+            std::cout << "Animating frame, step: " << space.animationStep << std::endl;
+            if (space.animateRays(rays, bh, 0.008)) { // dt = 1/60s for 60 FPS
+                space.renderLightRays(window, rays);
+            } else {
+                isSimulationRunning = false;
+            }
         }
 
-        window.clear();
-        window.draw(sprite);
         window.display();
     }
 

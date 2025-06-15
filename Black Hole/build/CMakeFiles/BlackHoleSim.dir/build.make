@@ -127,9 +127,9 @@ BlackHoleSim: CMakeFiles/BlackHoleSim.dir/main.cpp.o
 BlackHoleSim: CMakeFiles/BlackHoleSim.dir/BlackHole.cpp.o
 BlackHoleSim: CMakeFiles/BlackHoleSim.dir/Space.cpp.o
 BlackHoleSim: CMakeFiles/BlackHoleSim.dir/build.make
-BlackHoleSim: /opt/homebrew/opt/sfml@2/lib/libsfml-graphics.2.6.2.dylib
-BlackHoleSim: /opt/homebrew/opt/sfml@2/lib/libsfml-window.2.6.2.dylib
-BlackHoleSim: /opt/homebrew/opt/sfml@2/lib/libsfml-system.2.6.2.dylib
+BlackHoleSim: /Users/annagalstyan/Downloads/SFML-2.6.2\ 2/lib/libsfml-graphics.2.6.2.dylib
+BlackHoleSim: /Users/annagalstyan/Downloads/SFML-2.6.2\ 2/lib/libsfml-window.2.6.2.dylib
+BlackHoleSim: /Users/annagalstyan/Downloads/SFML-2.6.2\ 2/lib/libsfml-system.2.6.2.dylib
 BlackHoleSim: CMakeFiles/BlackHoleSim.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir="/Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/Black Hole/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_4) "Linking CXX executable BlackHoleSim"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/BlackHoleSim.dir/link.txt --verbose=$(VERBOSE)

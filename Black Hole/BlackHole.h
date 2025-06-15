@@ -2,41 +2,25 @@
 #define BLACKHOLE_H
 
 #include <SFML/Graphics.hpp>
-#include <vector>
-
-// Forward declare particle and ray structs
-struct Particle {
-    sf::Vector2f position;
-    sf::Vector2f velocity;
-    float mass;
-};
-
-struct LightRay {
-    sf::Vector2f position;
-    sf::Vector2f direction;
-    float intensity;
-};
+#include "Common.h" // Include the common definitions
 
 class BlackHole {
-public:
-    BlackHole(double mass, float posX, float posY, float radius);
-
-    sf::Vector2f getPosition() const;
-    float getRadius() const;
-    double getMass() const;
-
-    void updateParticle(Particle& p, float deltaTime);
-    void bendLightRay(LightRay& ray, float deltaTime);
-
 private:
-    double mass; // in kg
-    sf::Vector2f position;
-    float radius; // event horizon radius in pixels (scaled)
+    double mass;
+    double x, y, z;
+    static const double G;
+    static const double SPEED_OF_LIGHT;
 
-    const double G = 6.67430e-11; // gravitational constant
-
-    double schwarzschildRadius() const;
-    sf::Vector2f gravitationalAcceleration(const sf::Vector2f& pos) const;
+public:
+    BlackHole(double m, double xPos, double yPos, double zPos);
+    double getMass() const { return mass; }
+    double getX() const { return x; }
+    double getY() const { return y; }
+    double getZ() const { return z; }
+    double getEventHorizonRadius() const;
+    void bendLightRay(LightRay& ray, double dt) const; // Added const qualifier
+    static double getG() { return G; }                 // Public accessor for G
+    static double getSpeedOfLight() { return SPEED_OF_LIGHT; } // Public accessor for SPEED_OF_LIGHT
 };
 
 #endif

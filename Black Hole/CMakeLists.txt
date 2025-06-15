@@ -1,23 +1,38 @@
 cmake_minimum_required(VERSION 3.15)
-  project(BlackHoleSim)
+project(BlackHoleSim)
 
-  set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 17)
 
-  # Explicitly set include directories
-  include_directories(${CMAKE_SOURCE_DIR})
-  include_directories(/opt/homebrew/opt/sfml@2/include)
+# Explicitly set SFML directory to the downloaded SFML 2.6.2
+set(SFML_ROOT "/Users/annagalstyan/Downloads/SFML-2.6.2 2")
+set(SFML_DIR "${SFML_ROOT}/lib/cmake/SFML")
 
-  # Find SFML with custom path
-  set(SFML_DIR "/opt/homebrew/opt/sfml@2/lib/cmake/SFML")
-  find_package(SFML 2.6.2 REQUIRED COMPONENTS graphics window system)
+# Include directories
+include_directories(${CMAKE_SOURCE_DIR})
+include_directories(${SFML_ROOT}/include)
 
-  # Print SFML include directories and libraries for debugging
-  message(STATUS "SFML include dirs: ${SFML_INCLUDE_DIRS}")
-  message(STATUS "SFML libraries: ${SFML_LIBRARIES}")
+# Find SFML 2.6
+find_package(SFML 2.6 COMPONENTS graphics window system REQUIRED)
 
-  # Add executable
-  add_executable(BlackHoleSim main.cpp BlackHole.cpp Space.cpp)
+# Add executable with all source files
+add_executable(BlackHoleSim
+    main.cpp
+    BlackHole.cpp
+    Space.cpp
+)
 
-  # Link SFML libraries explicitly
-  target_link_libraries(BlackHoleSim sfml-graphics sfml-window sfml-system)
-  target_include_directories(BlackHoleSim PRIVATE ${SFML_INCLUDE_DIRS})
+# Set RPATH for macOS to find SFML dynamic libraries at runtime
+set_target_properties(BlackHoleSim PROPERTIES
+    BUILD_RPATH "${SFML_ROOT}/lib;@loader_path;@loader_path/Frameworks"
+    INSTALL_RPATH "${SFML_ROOT}/lib;@loader_path;@loader_path/Frameworks"
+)
+
+# Link SFML libraries
+target_link_libraries(BlackHoleSim PRIVATE sfml-graphics sfml-window sfml-system)
+
+# Copy SFML dynamic libraries to the build directory
+file(GLOB SFML_DYLIBS "${SFML_ROOT}/lib/*.dylib")
+file(COPY ${SFML_DYLIBS} DESTINATION ${CMAKE_BINARY_DIR})
+
+# Copy freetype framework to the build directory
+file(COPY "${SFML_ROOT}/extlibs/freetype.framework" DESTINATION ${CMAKE_BINARY_DIR}/Frameworks)

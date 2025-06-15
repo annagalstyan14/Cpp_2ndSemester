@@ -1,0 +1,8 @@
+[
+{
+  "directory": "/Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/BlackHole Visualization/build",
+  "command": "/usr/bin/c++  -I\"/Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/BlackHole Visualization\" -isystem /opt/homebrew/opt/sfml@2/include -std=c++17 -arch arm64 -o CMakeFiles/blackhole.dir/main.cpp.o -c \"/Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/BlackHole Visualization/main.cpp\"",
+  "file": "/Users/annagalstyan/Desktop/projects/Cpp_2ndSemester/BlackHole Visualization/main.cpp",
+  "output": "CMakeFiles/blackhole.dir/main.cpp.o"
+}
+]
